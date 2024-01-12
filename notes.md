@@ -3,7 +3,11 @@ La idea de proyecto:
 Mi idea principal es poder capturar dos tipos de datos TCP y UDP,poder almacenarlo
 en un archivo cap para su análisis.
 
-Como libreria principal utilizare la de std::net la libreria estandar.
+Tambien agregare los comandos: 
+
+
+Como libreria principal utilizare la de std::net la libreria estandar y 
+tambien utilizare std::fs::File para crear el archivo cap.
 
 Para capturar datos de una conexión TCP/IP, puede utilizar la clase TcpListener 
 para crear un servidor y la clase TcpStream para conectar un cliente. 
