@@ -1,6 +1,20 @@
 use std::net::{TcpListener, TcpStream};
 
 
-struct date {
-    
+pub struct Server {
+    addr: Option<String>,
+    stream: TcpStream,
+    listener: TcpListener,
+}
+
+impl Server {
+
+    fn new() {
+        
+    }
+        
+    fn listener() {
+        
+    }
+
 }
