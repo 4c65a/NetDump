@@ -19,13 +19,13 @@ Para capturar los datos, debes estar en el medio, entre el cliente y el servidor
 Esto significa que debes estar conectado a la misma red que el cliente y el servidor.
 Una vez que estés conectado a la misma red que el cliente y el servidor,
 puedes configurar tu computadora para que escuche las conexiones.
-
+```
                  [TcpStream]
                      |
 [Cliente] <-> [Intermediación] <-> [Servidor]
                      |
                [TcpListener]
-
+```
 El TcpListener crea un servidor que escucha las conexiones TCP/IP. El servidor se convierte en el intermediario entre el cliente y el servidor original.
 
 El TcpStream se utiliza para establecer una conexión entre el cliente y el servidor intermedio. El cliente se conecta al servidor intermedio sin saberlo.
