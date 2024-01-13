@@ -8,12 +8,12 @@ struct Server {
 
 impl Server {
     pub fn new(target: &str) -> Result<(), io::ErrorKind> {
-        let target = Server {
+        let listener = Server {
             addr: Some(target.to_string()),
             listener: TcpListener::bind(target).unwrap(),
         };
         //println!("Connection: {}",target);
-        for streams in target {
+        for streams in listener.incoming(){
             match streams {
                 Err(expr) => {
                     eprintln!("error: {}", expr)
