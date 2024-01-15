@@ -1,19 +1,27 @@
-use std::io::*;
+use std::io;
 use std::net::*;
+use std::u8;
+use std::vec;
 
 struct Server {
     addr: Option<String>,
+    buffer: Vec<u8>,
     listener: UdpSocket,
 }
 
-
+/// Add read date (BufRead) ,also in Tcp
 impl Server {
-    fn new(target: &str) -> Result<(),io::ErrorKind>{
-        let listener = Server{
-            addr: Some("somewhere".to_string()),
+    fn new(target: &str) -> Result<(), io::ErrorKind> {
+        let mut listen = Server {
+            addr: Some("s".to_string()),
+            buffer: vec![0;1024],
             listener: UdpSocket::bind(target).unwrap(),
-        } 
+        };
+
+        let resquet = listen.listener.recv_from(&mut listen.buffer).unwrap();         
         
-        Ok(())       
+        println!("Listen: {:#?}",resquet);
+
+        Ok(())
     }
 }
