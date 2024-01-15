@@ -12,14 +12,14 @@ impl Server {
             addr: Some(target.to_string()),
             listener: TcpListener::bind(target).unwrap(),
         };
-        //println!("Connection: {}",target);
-        for streams in listen.listener.incoming() {
+        
+        for streams in listen.listener.accept(){
             match streams {
                 Err(expr) => {
                     eprintln!("error: {}", expr)
                 }
-                Ok(streams) => {
-                    eprintln!("stream: {:#?}", streams)
+                Ok(e) => {
+                    eprintln!("stream: {:#?}", e)
                 }
             }
         }
