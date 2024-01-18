@@ -7,7 +7,7 @@ use pnet::packet::{
     Packet,
 };
 
-/// Obtener encabezados
+/// Get Headers
 pub trait NetworkData<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
@@ -15,7 +15,7 @@ pub trait NetworkData<'a> {
     fn get_destinations(&'a self) -> String;
     /// Contiene los datos de la aplicación que se están enviando, la carga util del paquete
     fn get_payload(&'a self) -> &[u8];
-    /// Contiene un conjunto de banderas de control que se utilizan para indicar el estado de la conexión TCP
+    /// Contiene un conjunto de banderas de control que se utilizan Ipv4 y Tcp para indicar el estado de la conexión TCP
     fn get_flags(&'a self) -> String;
     /// Tamaño total del paquete, en bytes.
     fn get_length(&'a self) -> String;
@@ -36,14 +36,6 @@ impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
 
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
-    }
-
-    fn get_port(&'a self) -> String {
-        self.get_port().to_string()
-    }
-
-    fn get_protocol(&'a self) -> String {
-        self.get_protocol().to_string()
     }
 }
 
