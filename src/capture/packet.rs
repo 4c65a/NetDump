@@ -8,7 +8,7 @@ use pnet::packet::{
 };
 
 /// Get Headers
-pub trait NetworkData<'a> {
+pub trait HeaderDataIpv4<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
     /// Puerto de destino del paquete 
@@ -17,12 +17,30 @@ pub trait NetworkData<'a> {
     fn get_payload(&'a self) -> &[u8];
     /// Contiene un conjunto de banderas de control que se utilizan Ipv4 y Tcp para indicar el estado de la conexión TCP
     fn get_flags(&'a self) -> String;
-    /// Tamaño total del paquete, en bytes.
+    /// Tamaño total del paquete, en bytes Udp
     fn get_length(&'a self) -> String;
-    /// Indica la version del protocolo
+    /// Indica la version del protocolo Ipv4 y Ipv6
     fn get_version(&'a self) -> String;
     /// Time to Live (TTL) Ipv4
     fn get_ttl(&'a self) -> String;
+    /// Indica el tipo de mensaje ICMP que se está enviando.
+    fn get_icmp_type(&'a self) -> String;
+}
+
+pub trait HeaderDataIpv6<'a>{
+    
+}
+
+pub trait HeaderDataTcp<'a> {
+    
+}
+
+pub trait HeaderDataUdp<'a> {
+    
+}
+
+pub trait HeaderDataIcmp<'a> {
+    
 }
 
 impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
@@ -36,6 +54,12 @@ impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
 
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
+    }
+    fn get_version(&'a self) -> String {
+        self.get_version().to_string()
+    }
+    fn get_ttl(&'a self) -> String {
+        self.get_ttl().to_string()
     }
 }
 
