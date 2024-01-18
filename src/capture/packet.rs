@@ -1,5 +1,3 @@
-use std::u8;
-
 use pnet::packet::{
     icmp::IcmpPacket, ipv4::Ipv4Packet, ipv6::Ipv6Packet, tcp::TcpPacket, udp::UdpPacket, Packet,
 };
@@ -54,6 +52,10 @@ pub trait HeaderDataUdp<'a> {
 }
 /// Get Headers ICMP
 pub trait HeaderDataIcmp<'a> {
+    /// Puerto de origen del paquete
+    fn get_source(&'a self) -> String;
+    /// Puerto de destino del paquete
+    fn get_destinations(&'a self) -> String;
     /// Indica el tipo de mensaje ICMP que se está enviando.
     fn get_icmp_types(&'a self) -> String;
     /// Contiene los datos de la aplicación que se están enviando, la carga util del paquete
@@ -137,6 +139,13 @@ impl<'a> HeaderDataUdp<'a> for UdpPacket<'a> {
 }
 
 impl<'a> HeaderDataIcmp<'a> for IcmpPacket<'a> {
+    fn get_source(&'a self) -> String {
+        self.get_source().to_string()
+    }
+    fn get_destinations(&'a self) -> String {
+        self.get_source().to_string()
+    }
+
     fn get_icmp_types(&'a self) -> String {
         self.get_icmp_types().to_string()
     }
