@@ -1,3 +1,5 @@
+use std::u8;
+
 use pnet::packet::{
     icmp::IcmpPacket, ipv4::Ipv4Packet, ipv6::Ipv6Packet, tcp::TcpPacket, udp::UdpPacket, Packet,
 };
@@ -53,12 +55,12 @@ pub trait HeaderDataUdp<'a> {
 /// Get Headers ICMP
 pub trait HeaderDataIcmp<'a> {
     /// Indica el tipo de mensaje ICMP que se está enviando.
-    fn get_icmp_type(&'a self) -> String;
+    fn get_icmp_types(&'a self) -> String;
     /// Contiene los datos de la aplicación que se están enviando, la carga util del paquete
-    fn get_payload(&'a self) -> String;
+    fn get_payload(&'a self) -> &[u8];
 }
 
-impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
+impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
     }
@@ -73,12 +75,15 @@ impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
     fn get_version(&'a self) -> String {
         self.get_version().to_string()
     }
+    fn get_flags(&'a self) -> String {
+        self.get_flags().to_string()
+    }
     fn get_ttl(&'a self) -> String {
         self.get_ttl().to_string()
     }
 }
 
-impl<'a> NetworkData<'a> for Ipv6Packet<'a> {
+impl<'a> HeaderDataIpv6<'a> for Ipv6Packet<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
     }
@@ -90,9 +95,13 @@ impl<'a> NetworkData<'a> for Ipv6Packet<'a> {
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
     }
+
+    fn get_version(&'a self) -> String {
+        self.get_version().to_string()
+    }
 }
 
-impl<'a> NetworkData<'a> for TcpPacket<'a> {
+impl<'a> HeaderDataTcp<'a> for TcpPacket<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
     }
@@ -104,9 +113,12 @@ impl<'a> NetworkData<'a> for TcpPacket<'a> {
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
     }
+    fn get_flags(&'a self) -> String {
+        self.get_flags().to_string()
+    }
 }
 
-impl<'a> NetworkData<'a> for UdpPacket<'a> {
+impl<'a> HeaderDataUdp<'a> for UdpPacket<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
     }
@@ -118,15 +130,15 @@ impl<'a> NetworkData<'a> for UdpPacket<'a> {
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
     }
+
+    fn get_length(&'a self) -> String {
+        self.get_length().to_string()
+    }
 }
 
-impl<'a> NetworkData<'a> for IcmpPacket<'a> {
-    fn get_source(&'a self) -> String {
-        self.get_source().to_string()
-    }
-
-    fn get_destinations(&'a self) -> String {
-        self.get_destinations().to_string()
+impl<'a> HeaderDataIcmp<'a> for IcmpPacket<'a> {
+    fn get_icmp_types(&'a self) -> String {
+        self.get_icmp_types().to_string()
     }
 
     fn get_payload(&'a self) -> &[u8] {
