@@ -7,12 +7,22 @@ use pnet::packet::{
     Packet,
 };
 
+/// Obtener encabezados
 pub trait NetworkData<'a> {
+    /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
+    /// Puerto de destino del paquete 
     fn get_destinations(&'a self) -> String;
+    /// Contiene los datos de la aplicación que se están enviando, la carga util del paquete
     fn get_payload(&'a self) -> &[u8];
-    fn get_port(&'a self) -> String;
-    fn get_protocol(&'a self) -> String;
+    /// Contiene un conjunto de banderas de control que se utilizan para indicar el estado de la conexión TCP
+    fn get_flags(&'a self) -> String;
+    /// Tamaño total del paquete, en bytes.
+    fn get_length(&'a self) -> String;
+    /// Indica la version del protocolo
+    fn get_version(&'a self) -> String;
+    /// Time to Live (TTL) Ipv4
+    fn get_ttl(&'a self) -> String;
 }
 
 impl<'a> NetworkData<'a> for Ipv4Packet<'a> {
@@ -50,13 +60,6 @@ impl<'a> NetworkData<'a> for Ipv6Packet<'a> {
         self.payload()
     }
 
-    fn get_port(&'a self) -> String {
-        self.get_port().to_string()
-    }
-
-    fn get_protocol(&'a self) -> String {
-        self.get_protocol().to_string()
-    }
 }
 
 impl<'a> NetworkData<'a> for TcpPacket<'a> {
@@ -72,13 +75,6 @@ impl<'a> NetworkData<'a> for TcpPacket<'a> {
         self.payload()
     }
 
-    fn get_port(&'a self) -> String {
-        self.get_port().to_string()
-    }
-
-    fn get_protocol(&'a self) -> String {
-        self.get_protocol().to_string()
-    }
 }
 
 impl<'a> NetworkData<'a> for UdpPacket<'a> {
@@ -94,13 +90,6 @@ impl<'a> NetworkData<'a> for UdpPacket<'a> {
         self.payload()
     }
 
-    fn get_port(&'a self) -> String {
-        self.get_port().to_string()
-    }
-
-    fn get_protocol(&'a self) -> String {
-        self.get_protocol().to_string()
-    }
 }
 
 impl<'a> NetworkData<'a> for IcmpPacket<'a> {
@@ -114,13 +103,5 @@ impl<'a> NetworkData<'a> for IcmpPacket<'a> {
 
     fn get_payload(&'a self) -> &[u8] {
         self.payload()
-    }
-
-    fn get_port(&'a self) -> String {
-        self.get_port().to_string()
-    }
-
-    fn get_protocol(&'a self) -> String {
-        self.get_protocol().to_string()
     }
 }
