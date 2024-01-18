@@ -2,7 +2,7 @@ use pnet::packet::{
     icmp::IcmpPacket, ipv4::Ipv4Packet, ipv6::Ipv6Packet, tcp::TcpPacket, udp::UdpPacket, Packet,
 };
 
-/// Get Headers
+/// Get Headers Ipv4
 pub trait HeaderDataIpv4<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
@@ -17,7 +17,7 @@ pub trait HeaderDataIpv4<'a> {
     /// Time to Live (TTL) Ipv4
     fn get_ttl(&'a self) -> String;
 }
-
+/// Get Headers Ipv6
 pub trait HeaderDataIpv6<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
@@ -28,7 +28,7 @@ pub trait HeaderDataIpv6<'a> {
     /// Indica la version del protocolo Ipv4 y Ipv6
     fn get_version(&'a self) -> String;
 }
-
+/// Get Headers TCP
 pub trait HeaderDataTcp<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
@@ -39,7 +39,7 @@ pub trait HeaderDataTcp<'a> {
     /// Contiene un conjunto de banderas de control que se utilizan Ipv4 y Tcp para indicar el estado de la conexión TCP
     fn get_flags(&'a self) -> String;
 }
-
+/// Get Headers UDP
 pub trait HeaderDataUdp<'a> {
     /// Puerto de origen del paquete
     fn get_source(&'a self) -> String;
@@ -50,7 +50,7 @@ pub trait HeaderDataUdp<'a> {
     /// Tamaño total del paquete, en bytes Udp
     fn get_length(&'a self) -> String;
 }
-
+/// Get Headers ICMP
 pub trait HeaderDataIcmp<'a> {
     /// Indica el tipo de mensaje ICMP que se está enviando.
     fn get_icmp_type(&'a self) -> String;
