@@ -64,6 +64,7 @@ pub trait HeaderDataIcmp<'a> {
 
 impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
     fn get_source(&'a self) -> String {
+        let source = Ipv4Packet::get_source(&self);
         self.get_source().to_string()
     }
 
