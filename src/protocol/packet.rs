@@ -65,11 +65,12 @@ pub trait HeaderDataIcmp<'a> {
 impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
     fn get_source(&'a self) -> String {
         let source = Ipv4Packet::get_source(&self);
-        self.get_source().to_string()
+        source.to_string()
     }
 
     fn get_destinations(&'a self) -> String {
-        self.get_destinations().to_string()
+        let destination = Ipv4Packet::get_destination(&self);
+        destination.to_string()
     }
 
     fn get_payload(&'a self) -> &[u8] {
