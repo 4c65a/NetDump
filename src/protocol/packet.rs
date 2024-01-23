@@ -118,20 +118,25 @@ impl<'a> HeaderDataIpv6<'a> for Ipv6Packet<'a> {
     }
 }
 
+/// Implementacion de Tcp para obtener los encabezados
 impl<'a> HeaderDataTcp<'a> for TcpPacket<'a> {
     fn get_source(&'a self) -> String {
-        self.get_source().to_string()
+        let source = TcpPacket::get_source(&self);
+        source.to_string()
     }
 
     fn get_destinations(&'a self) -> String {
-        self.get_destinations().to_string()
+        let destination = TcpPacket::get_destination(&self);
+        destination.to_string()
     }
 
     fn get_payload(&'a self) -> &[u8] {
-        self.payload()
+        let payload = TcpPacket::payload(&self);
+        payload
     }
     fn get_flags(&'a self) -> String {
-        self.get_flags().to_string()
+        let flags = TcpPacket::get_flags(&self);
+        flags.to_string()
     }
 }
 
