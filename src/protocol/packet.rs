@@ -62,7 +62,9 @@ pub trait HeaderDataIcmp<'a> {
     fn get_payload(&'a self) -> &[u8];
 }
 
+/// Implementacion de Ipv4 para obetner los encabezados
 impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
+
     fn get_source(&'a self) -> String {
         let source = Ipv4Packet::get_source(&self);
         source.to_string()
@@ -74,16 +76,20 @@ impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
     }
 
     fn get_payload(&'a self) -> &[u8] {
-        self.payload()
+        let payload = Ipv4Packet::payload(&self);
+        payload
     }
     fn get_version(&'a self) -> String {
-        self.get_version().to_string()
+        let version = Ipv4Packet::get_version(&self);
+        version.to_string()
     }
     fn get_flags(&'a self) -> String {
-        self.get_flags().to_string()
+        let flags = Ipv4Packet::get_flags(&self);
+        flags.to_string()
     }
     fn get_ttl(&'a self) -> String {
-        self.get_ttl().to_string()
+        let ttl = Ipv4Packet::get_ttl(&self);
+        ttl.to_string()
     }
 }
 
