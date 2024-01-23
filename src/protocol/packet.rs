@@ -143,19 +143,23 @@ impl<'a> HeaderDataTcp<'a> for TcpPacket<'a> {
 /// Implementacion de Udp para obtener los encabezados
 impl<'a> HeaderDataUdp<'a> for UdpPacket<'a> {
     fn get_source(&'a self) -> String {
-        self.get_source().to_string()
+        let source = UdpPacket::get_source(&self);
+        source.to_string()
     }
 
     fn get_destinations(&'a self) -> String {
-        self.get_destinations().to_string()
+        let destination = UdpPacket::get_destination(&self);
+        destination.to_string()
     }
 
     fn get_payload(&'a self) -> &[u8] {
-        self.payload()
+        let payload = UdpPacket::payload(&self);
+        payload
     }
 
     fn get_length(&'a self) -> String {
-        self.get_length().to_string()
+        let length = UdpPacket::get_length(&self);
+        length.to_string()
     }
 }
 
