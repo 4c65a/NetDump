@@ -140,6 +140,7 @@ impl<'a> HeaderDataTcp<'a> for TcpPacket<'a> {
     }
 }
 
+/// Implementacion de Udp para obtener los encabezados
 impl<'a> HeaderDataUdp<'a> for UdpPacket<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
@@ -158,6 +159,7 @@ impl<'a> HeaderDataUdp<'a> for UdpPacket<'a> {
     }
 }
 
+/// Implementacion de Icmp para obtener los encabezados
 impl<'a> HeaderDataIcmp<'a> for IcmpPacket<'a> {
     fn get_source(&'a self) -> String {
         self.get_source().to_string()
