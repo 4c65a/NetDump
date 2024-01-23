@@ -93,21 +93,28 @@ impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
     }
 }
 
+
+/// Implementacion de Ipv6 para obetner los encabezados
 impl<'a> HeaderDataIpv6<'a> for Ipv6Packet<'a> {
+
     fn get_source(&'a self) -> String {
-        self.get_source().to_string()
+        let source = Ipv6Packet::get_source(&self);
+        source.to_string()
     }
 
     fn get_destinations(&'a self) -> String {
-        self.get_destinations().to_string()
+        let destination = Ipv6Packet::get_destination(&self);
+        destination.to_string()
     }
 
     fn get_payload(&'a self) -> &[u8] {
-        self.payload()
+        let payload = Ipv6Packet::payload(&self);
+        payload
     }
 
     fn get_version(&'a self) -> String {
-        self.get_version().to_string()
+        let version = Ipv6Packet::get_version(&self);
+        version.to_string()
     }
 }
 
