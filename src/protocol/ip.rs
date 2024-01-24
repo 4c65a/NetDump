@@ -17,7 +17,17 @@ fn ipv4(ether: &EthernetPacket, headertcp: &dyn HeaderDataTcp, headeripv4: &dyn 
                         let payload = headertcp.get_payload();
                         let ttl = headeripv4.get_ttl();
                         let version = headeripv4.get_version();
-                        
+                        info!("Source: {}|Ipv4{} | Destination: {}|Ipv4{} | Flag: {}|Ipv4{} | Payload: {:#?} | ttl: {} | Version: {} ",
+                            source,
+                            source_ipv4,
+                            destination,
+                            destination_ipv4,
+                            flag,
+                            flag_ipv4,
+                            payload,
+                            ttl,
+                            version
+                        );
                             
                     }
                 }
