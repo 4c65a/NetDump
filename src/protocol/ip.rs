@@ -61,11 +61,10 @@ fn ipv4(
                 version
             );
         } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Icmp {
-              let destination = headerudp.get_destinations();
+              let icmp_type = headericmp.get_icmp_types();
               let destination_ipv4 = headeripv4.get_destinations();
               let flag_ipv4 = headeripv4.get_flags();
-              let payload = headerudp.get_payload();
-              let length = headerudp.get_length();
+              let payload = headericmp.get_payload()
               let ttl = headeripv4.get_ttl();
               let version = headeripv4.get_version();
               info!(
