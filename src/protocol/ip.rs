@@ -1,4 +1,4 @@
-use super::packet::{HeaderDataIpv4, HeaderDataTcp};
+use super::packet::{HeaderDataIcmp, HeaderDataIpv4, HeaderDataTcp, HeaderDataUdp};
 use log::{self, info};
 use pnet::packet::{
     ethernet::{EtherTypes, EthernetPacket},
@@ -7,7 +7,7 @@ use pnet::packet::{
     Packet,
 };
 
-fn ipv4(ether: &EthernetPacket, headertcp: &'static dyn HeaderDataTcp, headeripv4: &'static dyn HeaderDataIpv4) {
+fn ipv4(ether: &EthernetPacket, headertcp: &'static dyn HeaderDataTcp, headeripv4: &'static dyn HeaderDataIpv4, headerudp: &'static dyn HeaderDataUdp, headericmp &'static dyn HeaderDataIcmp) {
     if ether.get_ethertype() == EtherTypes::Ipv4 {
         let packet = Ipv4Packet::new(ether.payload()).unwrap();
         if packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp {
