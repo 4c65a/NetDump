@@ -1,4 +1,4 @@
-use super::packet::{HeaderDataIcmp, HeaderDataIpv4, HeaderDataTcp, HeaderDataUdp};
+use super::packet::{HeaderDataIcmp, HeaderDataIpv4, HeaderDataIpv6, HeaderDataTcp, HeaderDataUdp};
 use log::{self, info};
 use pnet::packet::{
     ethernet::{EtherTypes, EthernetPacket}, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet, ipv6::Ipv6Packet, Packet
@@ -77,7 +77,7 @@ fn ipv4(
 fn ipv6(
     ether: &EthernetPacket,
     headertcp: &'static dyn HeaderDataTcp,
-    headeripv4: &'static dyn HeaderDataIpv4,
+    headeripv6: &'static dyn HeaderDataIpv6,
     headerudp: &'static dyn HeaderDataUdp,
     headericmp: &'static dyn HeaderDataIcmp,
 ) {
