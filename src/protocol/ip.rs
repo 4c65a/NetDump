@@ -60,6 +60,8 @@ fn ipv4(
                 ttl,
                 version
             );
+        } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Icmp {
+            
         }
     }
 }
