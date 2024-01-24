@@ -1,10 +1,7 @@
 use super::packet::{HeaderDataIcmp, HeaderDataIpv4, HeaderDataTcp, HeaderDataUdp};
 use log::{self, info};
 use pnet::packet::{
-    ethernet::{EtherTypes, EthernetPacket},
-    ip::IpNextHeaderProtocols,
-    ipv4::Ipv4Packet,
-    Packet,
+    ethernet::{EtherTypes, EthernetPacket}, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet, ipv6::Ipv6Packet, Packet
 };
 
 fn ipv4(
@@ -85,8 +82,8 @@ fn ipv6(
     headericmp: &'static dyn HeaderDataIcmp,
 ) {
     if ether.get_ethertype() == EtherTypes::Ipv6 {
-        let packet = Ipv4Packet::new(ether.payload()).unwrap();
-        if packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp {
+        let packet = Ipv6Packet::new(ether.payload()).unwrap();
+        if packet.get_next_header() == IpNextHeaderProtocols::Tcp {
             let source = headertcp.get_source();
             let source_ipv4 = headeripv4.get_source();
             let destination = headertcp.get_destinations();
@@ -107,7 +104,7 @@ fn ipv6(
                             ttl,
                             version
                         );
-        } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Udp {
+        } else if packet.get_next_header() == IpNextHeaderProtocols::Udp {
             let source = headerudp.get_source();
             let source_ipv4 = headeripv4.get_source();
             let destination = headerudp.get_destinations();
@@ -130,7 +127,7 @@ fn ipv6(
                 ttl,
                 version
             );
-        } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Icmp {
+        } else if packet.get_next_header() == IpNextHeaderProtocols::Icmp {
             let source_ipv4 = headeripv4.get_source();
             let icmp_type = headericmp.get_icmp_types();
             let destination_ipv4 = headeripv4.get_destinations();
