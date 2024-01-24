@@ -1,5 +1,10 @@
 use pnet::packet::{
-    icmp::{IcmpPacket, IcmpType}, ipv4::Ipv4Packet, ipv6::Ipv6Packet, tcp::TcpPacket, udp::UdpPacket, Packet
+    icmp::{IcmpPacket, IcmpType},
+    ipv4::Ipv4Packet,
+    ipv6::Ipv6Packet,
+    tcp::TcpPacket,
+    udp::UdpPacket,
+    Packet,
 };
 
 /// Get Headers Ipv4
@@ -79,7 +84,6 @@ impl<'a> HeaderDataIpv4<'a> for Ipv4Packet<'a> {
         self.get_ttl().to_string()
     }
 }
-
 
 /// Implementacion de Ipv6 para obetner los encabezados
 impl<'a> HeaderDataIpv6<'a> for Ipv6Packet<'a> {
