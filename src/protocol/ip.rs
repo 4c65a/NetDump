@@ -85,14 +85,12 @@ fn ipv6(
         let packet = Ipv6Packet::new(ether.payload()).unwrap();
         if packet.get_next_header() == IpNextHeaderProtocols::Tcp {
             let source = headertcp.get_source();
-            let source_ipv4 = headeripv4.get_source();
+            let source_ipv6 = headeripv6.get_source();
             let destination = headertcp.get_destinations();
-            let destination_ipv4 = headeripv4.get_destinations();
+            let destination_ipv6 = headeripv6.get_destinations();
             let flag = headertcp.get_flags();
-            let flag_ipv4 = headeripv4.get_flags();
             let payload = headertcp.get_payload();
-            let ttl = headeripv4.get_ttl();
-            let version = headeripv4.get_version();
+            let version = headeripv6.get_version();
             info!("Source: {}|Ipv4{} | Destination: {}|Ipv4{} | Flag: {}|Ipv4{} | Payload: {:#?} | ttl: {} | Version: {} ",
                             source,
                             source_ipv4,
