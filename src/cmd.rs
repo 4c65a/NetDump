@@ -15,9 +15,9 @@ pub fn cmd() {
         )
         .arg(
             Arg::new("Protocol")
-            .short('p')
-            .long("protocol")
-            .help("Protocol filter")
+                .short('p')
+                .long("protocol")
+                .help("Protocol filter"),
         )
         .get_matches();
 }
