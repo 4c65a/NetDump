@@ -11,9 +11,9 @@ use pnet::packet::{
 /// Global variables 
 static mut HEADER_TCP: Option<&'static dyn  HeaderDataTcp> = None;
 static mut HEADER_IPV4: Option<&'static dyn HeaderDataIpv4> = None;
-static mut HEADER_IPV4;
-static mut HEADER_UDP;
-static mut HEADER_ICMP;
+static mut HEADER_IPV6: Option<&'static dyn HeaderDataIpv6> = None;
+static mut HEADER_UDP: Option<&'static dyn HeaderDataUdp> = None;
+static mut HEADER_ICMP: Option<&'static dyn HeaderDataIcmp> = None;
 
 
 pub fn ipv4_handler(
