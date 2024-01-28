@@ -1,7 +1,7 @@
 mod cmd;
-mod protocol;
 mod interface;
-  
+mod protocol;
+
 fn main() {
     println!("Hello, world!");
 }
