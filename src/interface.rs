@@ -2,7 +2,6 @@ use core::panic;
 
 use pnet::datalink::{self, interfaces, Channel::Ethernet};
 
-
 pub fn interface(int_name: &str) {
     let interface = interfaces();
 
