@@ -1,7 +1,9 @@
+use cmd::args;
+
 mod cmd;
 mod interface;
 mod protocol;
 
 fn main() {
-    println!("Hello, world!");
+    let function_cmd = args();
 }
