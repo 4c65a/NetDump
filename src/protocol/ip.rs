@@ -9,23 +9,21 @@ use pnet::packet::{
 };
 
 /// Global variables 
-static mut HEADER_TCP: Option<&'static dyn  HeaderDataTcp> = None;
+static mut HEADER_TCP: Option<&'static dyn HeaderDataTcp> = None;
 static mut HEADER_IPV4: Option<&'static dyn HeaderDataIpv4> = None;
 static mut HEADER_IPV6: Option<&'static dyn HeaderDataIpv6> = None;
 static mut HEADER_UDP: Option<&'static dyn HeaderDataUdp> = None;
 static mut HEADER_ICMP: Option<&'static dyn HeaderDataIcmp> = None;
 
-
 pub fn ipv4_handler(
     ether: &EthernetPacket,
-    headertcp: &'static dyn HeaderDataTcp,
-    headeripv4: &'static dyn HeaderDataIpv4,
-    headerudp: &'static dyn HeaderDataUdp,
-    headericmp: &'static dyn HeaderDataIcmp,
 ) {
     if ether.get_ethertype() == EtherTypes::Ipv4 {
         let packet = Ipv4Packet::new(ether.payload()).unwrap();
         if packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp {
+            unsafe{
+            let source = HEADER_ICMP.unwrap().get_payload();
+            }
             let source = headertcp.get_source();
             let source_ipv4 = headeripv4.get_source();
             let destination = headertcp.get_destinations();
