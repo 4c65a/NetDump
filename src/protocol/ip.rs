@@ -8,7 +8,7 @@ use pnet::packet::{
     Packet,
 };
 
-/// Global variables 
+/// Global variables
 static mut HEADER_TCP: Option<&'static dyn HeaderDataTcp> = None;
 static mut HEADER_IPV4: Option<&'static dyn HeaderDataIpv4> = None;
 static mut HEADER_IPV6: Option<&'static dyn HeaderDataIpv6> = None;
@@ -21,19 +21,17 @@ pub fn ipv4_handler(
     if ether.get_ethertype() == EtherTypes::Ipv4 {
         let packet = Ipv4Packet::new(ether.payload()).unwrap();
         if packet.get_next_level_protocol() == IpNextHeaderProtocols::Tcp {
-            unsafe{
-            let source = HEADER_ICMP.unwrap().get_payload();
-            }
-            let source = headertcp.get_source();
-            let source_ipv4 = headeripv4.get_source();
-            let destination = headertcp.get_destinations();
-            let destination_ipv4 = headeripv4.get_destinations();
-            let flag = headertcp.get_flags();
-            let flag_ipv4 = headeripv4.get_flags();
-            let payload = headertcp.get_payload();
-            let ttl = headeripv4.get_ttl();
-            let version = headeripv4.get_version();
-            info!("Source: {} | Ipv4: {} | Destination: {} | Ipv4: {} | Flag: {} | Ipv4: {} | Payload: {:#?} | ttl: {} | Version: {} ",
+        unsafe{
+            let source = HEADER_TCP.unwrap().get_source();
+            let source_ipv4 = HEADER_IPV4.unwrap().get_source();
+            let destination = HEADER_TCP.unwrap().get_destinations();
+            let destination_ipv4 = HEADER_IPV4.unwrap().get_destinations();
+            let flag = HEADER_TCP.unwrap().get_flags();
+            let flag_ipv4 = HEADER_IPV4.unwrap().get_flags();
+            let payload = HEADER_TCP.unwrap().get_payload();
+            let ttl = HEADER_IPV4.unwrap().get_ttl();
+            let version = HEADER_IPV4.unwrap().get_version();
+                   info!("Source: {} | Ipv4: {} | Destination: {} | Ipv4: {} | Flag: {} | Ipv4: {} | Payload: {:#?} | ttl: {} | Version: {} ",
                             source,
                             source_ipv4,
                             destination,
@@ -44,16 +42,18 @@ pub fn ipv4_handler(
                             ttl,
                             version
                         );
+            }
         } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Udp {
-            let source = headerudp.get_source();
-            let source_ipv4 = headeripv4.get_source();
-            let destination = headerudp.get_destinations();
-            let destination_ipv4 = headeripv4.get_destinations();
-            let flag_ipv4 = headeripv4.get_flags();
-            let payload = headerudp.get_payload();
-            let length = headerudp.get_length();
-            let ttl = headeripv4.get_ttl();
-            let version = headeripv4.get_version();
+            unsafe{
+            let source = HEADER_UDP.unwrap().get_source();
+            let source_ipv4 = HEADER_IPV4.unwrap().get_source();
+            let destination = HEADER_UDP.unwrap().get_destinations();
+            let destination_ipv4 = HEADER_IPV4.unwrap().get_destinations();
+            let flag_ipv4 = HEADER_IPV4.unwrap().get_flags();
+            let payload = HEADER_IPV4.unwrap().get_payload();
+            let length = HEADER_UDP.unwrap().get_length();
+            let ttl = HEADER_IPV4.unwrap().get_ttl();
+            let version = HEADER_IPV4.unwrap().get_version();
             info!(
                 "Source: {} | Ipv4: {} | Destination: {} | Ipv4: {} | Flag
      : {} | Ipv4 {} | Payload: {:#?} | ttl: {} | Version: {} ",
@@ -67,19 +67,22 @@ pub fn ipv4_handler(
                 ttl,
                 version
             );
+            }
         } else if packet.get_next_level_protocol() == IpNextHeaderProtocols::Icmp {
-            let source_ipv4 = headeripv4.get_source();
-            let icmp_type = headericmp.get_icmp_types();
-            let destination_ipv4 = headeripv4.get_destinations();
-            let flag_ipv4 = headeripv4.get_flags();
-            let payload = headericmp.get_payload();
-            let ttl = headeripv4.get_ttl();
-            let version = headeripv4.get_version();
+            unsafe{
+            let source_ipv4 = HEADER_IPV4.unwrap().get_source();
+            let icmp_type = HEADER_ICMP.unwrap().get_icmp_types();
+            let destination_ipv4 = HEADER_IPV4.unwrap().get_destinations();
+            let flag_ipv4 = HEADER_IPV4.unwrap().get_flags();
+            let payload = HEADER_ICMP.unwrap().get_payload();
+            let ttl = HEADER_IPV4.unwrap().get_ttl();
+            let version = HEADER_IPV4.unwrap().get_version();
             info!(
                 "Source Ipv4:{} | IcmpType: {:#?}| Destination Ipv4: {} | Flag
        : {} | Payload: {:#?} | ttl: {} | Version: {} ",
                 source_ipv4, icmp_type, destination_ipv4, flag_ipv4, payload, ttl, version
             );
+            }
         }
     }
 }

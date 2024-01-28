@@ -20,5 +20,4 @@ pub fn args() {
                 .help("Protocol filter"),
         )
         .get_matches();
-    
 }
