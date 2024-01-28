@@ -8,7 +8,7 @@ use pnet::packet::{
     Packet,
 };
 
-pub fn ipv4(
+pub fn ipv4_handler(
     ether: &EthernetPacket,
     headertcp: &'static dyn HeaderDataTcp,
     headeripv4: &'static dyn HeaderDataIpv4,
@@ -78,7 +78,7 @@ pub fn ipv4(
     }
 }
 
-pub fn ipv6(
+pub fn ipv6_handler(
     ether: &EthernetPacket,
     headertcp: &'static dyn HeaderDataTcp,
     headeripv6: &'static dyn HeaderDataIpv6,

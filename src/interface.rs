@@ -1,6 +1,6 @@
 use core::panic;
-
-use pnet::datalink::{self, interfaces, Channel::Ethernet};
+use pnet::{datalink::{self, interfaces, Channel::Ethernet}, packet::ethernet::{EtherTypes, EthernetPacket}};
+use crate::protocol::ip;
 
 pub fn interface(int_name: &str) {
     let interface = interfaces();
@@ -11,9 +11,23 @@ pub fn interface(int_name: &str) {
         .next()
         .expect("Failed to get interface");
 
-    let (_tx, mut rx) = match datalink::channel(&inter, Default::default()) {
+    let (tx, mut rx) = match datalink::channel(&inter, Default::default()) {
         Ok(Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unhandled"),
         Err(e) => panic!("Failed to channel {e}"),
     };
+
+    loop {
+        match rx.next() {
+            Some(packets) => {
+                let packets = EthernetPacket::new(packets).unwrap();
+                match packets.get_ethertype() {
+                    EtherTypes::Ipv4 {
+                    
+                    }
+                }
+            },
+            None
+        }
+    }
 }
