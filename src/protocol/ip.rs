@@ -8,6 +8,14 @@ use pnet::packet::{
     Packet,
 };
 
+/// Global variables 
+static mut HEADER_TCP: Option<&'static dyn  HeaderDataTcp> = None;
+static mut HEADER_IPV4: Option<&'static dyn HeaderDataIpv4> = None;
+static mut HEADER_IPV4;
+static mut HEADER_UDP;
+static mut HEADER_ICMP;
+
+
 pub fn ipv4_handler(
     ether: &EthernetPacket,
     headertcp: &'static dyn HeaderDataTcp,
