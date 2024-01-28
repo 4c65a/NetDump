@@ -1,6 +1,12 @@
+use crate::protocol::{
+    ip::{self, ipv4_handler, ipv6_handler},
+    packet::HeaderDataTcp,
+};
 use core::panic;
-use pnet::{datalink::{self, interfaces, Channel::Ethernet}, packet::ethernet::{EtherTypes, EthernetPacket}};
-use crate::protocol::{ip::{self, ipv4_handler}, packet::HeaderDataTcp};
+use pnet::{
+    datalink::{self, interfaces, Channel::Ethernet},
+    packet::ethernet::{EtherTypes, EthernetPacket},
+};
 
 pub fn interface(int_name: &str) {
     let interface = interfaces();
@@ -21,12 +27,13 @@ pub fn interface(int_name: &str) {
         match rx.next() {
             Some(packets) => {
                 let packets = EthernetPacket::new(packets).unwrap();
-                
+
                 match packets.get_ethertype() {
-                    EtherTypes::Ipv4 => ipv4_handler(),
+                    EtherTypes::Ipv4 => ipv4_handler(&packets),
+                    EtherTypes::Ipv6 => ipv6_handler(&packets),
                 }
-            },
-            Err(x) => panic("Failed to ip handler {}",x),
+            }
+            Err(x) => panic("Failed to ip handler {}", x),
         }
     }
 }
