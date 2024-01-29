@@ -1,6 +1,6 @@
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command};
 
-pub fn args() {
+pub fn args() -> ArgMatches {
     let matches = Command::new("netdump")
         .author("Leandro <Kirov>")
         .version("v0.1.0")
@@ -17,7 +17,8 @@ pub fn args() {
             Arg::new("Protocol")
                 .short('p')
                 .long("protocol")
-                .help("Protocol filter"),
+                 .help("Protocol filter"),
         )
         .get_matches();
+    matches
 }
