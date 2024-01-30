@@ -4,6 +4,6 @@ mod cmd;
 mod interface;
 mod protocol;
 
-fn main() {
+fn main() { 
     println!("{:#?}", args());
 }
