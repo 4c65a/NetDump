@@ -10,11 +10,10 @@ pub fn interface(int_name: &str) {
 
     let inter = interface
         .into_iter()
-        .filter(|inter| inter.name == *int_name)
-        .next()
+        .find(|inter| inter.name == *int_name)
         .expect("Failed to get interface");
 
-    let (tx, mut rx) = match datalink::channel(&inter, Default::default()) {
+    let (_, mut rx) = match datalink::channel(&inter, Default::default()) {
         Ok(Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unhandled"),
         Err(e) => panic!("Failed to channel {e}"),
