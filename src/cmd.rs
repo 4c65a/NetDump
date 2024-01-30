@@ -23,11 +23,11 @@ pub fn args() {
         )
         .arg(
             Arg::new("Save")
-            .short('s')
-            .long("save")
-            .help("Save")
-            .required(false)
-            .action(ArgAction::Set),
+                .short('s')
+                .long("save")
+                .help("Save")
+                .required(false)
+                .action(ArgAction::Set),
         )
         .get_matches();
 }

@@ -1,9 +1,11 @@
-use cmd::args;
+
+
+use crate::protocol::filter::index_interface;
 
 mod cmd;
 mod interface;
 mod protocol;
 
-fn main() { 
-    println!("{:#?}", args());
+fn main() {
+    index_interface()
 }
