@@ -36,4 +36,3 @@ pub fn interface(int_name: &str) {
         }
     }
 }
-

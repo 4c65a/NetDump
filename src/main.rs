@@ -5,5 +5,5 @@ mod interface;
 mod protocol;
 
 fn main() {
-    let arg = args();         
+    println!("{:#?}", args());
 }
