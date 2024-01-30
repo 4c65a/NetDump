@@ -1,7 +1,7 @@
-use clap::{Arg, ArgAction, ArgMatches, Command};
+use clap::{Arg, ArgAction, Command};
 
-pub fn args() -> ArgMatches {
-    let matches = Command::new("netdump")
+pub fn args() {
+    Command::new("netdump")
         .author("Leandro <Kirov>")
         .version("v0.1.0")
         .about("Packet capturer, you can capture packets from three different protocols")
@@ -17,8 +17,8 @@ pub fn args() -> ArgMatches {
             Arg::new("Protocol")
                 .short('p')
                 .long("protocol")
-                 .help("Protocol filter"),
+                .help("Protocol filter")
+                .action(ArgAction::Set),
         )
         .get_matches();
-    matches
 }
