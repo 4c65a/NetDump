@@ -1,3 +1,5 @@
+use cmd::args;
+
 mod cmd;
 mod interface;
 mod protocol;

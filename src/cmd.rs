@@ -1,7 +1,7 @@
 use clap::{Arg, ArgAction, Command};
-
 pub fn args() {
-    Command::new("netdump")
+    let matches = 
+        Command::new("netdump")
         .author("Leandro <Kirov>")
         .version("v0.1.0")
         .about("Packet capturer, you can capture packets from three different protocols")
@@ -14,10 +14,10 @@ pub fn args() {
                 .action(ArgAction::Set),
         )
         .arg(
-            Arg::new("Protocol")
-                .short('p')
-                .long("protocol")
-                .help("Protocol filter")
+            Arg::new("interface_list")
+                .short('l')
+                .long("list")
+                .help("List interface on your system")
                 .required(false)
                 .action(ArgAction::Set),
         )
@@ -28,6 +28,5 @@ pub fn args() {
                 .help("Save")
                 .required(false)
                 .action(ArgAction::Set),
-        )
-        .get_matches();
+        ).get_matches();
 }
