@@ -4,12 +4,19 @@ mod interface;
 mod protocol;
 
 fn main() {
-    let matches = cmd();
-    
+    let matches = cmd().get_matches_mut();
+
+    match matches.subcommand() {
+        Some() => {
+            
+        },
+        _ => {},
+    }
 }
 
 fn cmd() -> Command{
     let matches = Command::new("netdump")
+        .display_name("netdump")
         .author("Leandro <Kirov>")
         .version("v0.1.0")
         .about("Packet capturer, you can capture packets from three different protocols")
