@@ -5,7 +5,7 @@ use pnet::{
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
 
-pub fn interface(int_name: &String) {
+pub fn interface(int_name: &str) {
     let interface = interfaces();
 
     let inter = interface
