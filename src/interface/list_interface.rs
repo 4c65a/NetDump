@@ -1,28 +1,27 @@
-
 use pnet::datalink::interfaces;
 
-pub fn index_interface() {
+pub fn index_interface() -> Vec<String> {
     let interfaces = interfaces();
-    let filtered_interfaces = interfaces.iter().filter(|e| e.is_up() && !e.ips.is_empty());
-
-    println!("List of network interfaces on your system:");
-    for inter in filtered_interfaces{
-        println!("- {}",inter.name);
-    }
+    // Filter and collect interface names
+    let filtered_interfaces = interfaces
+        .iter()
+        .filter(|e| e.is_up() && !e.ips.is_empty())
+        .map(|e| e.name.to_string())
+        .collect();
+    filtered_interfaces
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
-    
+
     #[test]
-    fn test_index_interface(){
+    fn test_index_interface() {
         let fn_interface = index_interface();
         let interfaces = interfaces();
         let filter = interfaces.iter().filter(|e| e.is_up() && !e.ips.is_empty());
         let println_for = for inter in filter {
             println!("- {}", inter.name);
         };
-        assert!();
     }
 }
