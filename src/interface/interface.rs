@@ -7,10 +7,10 @@ use pnet::{
 
 pub fn interface(int_name: &str) {
     let interface = interfaces();
-
+    let int_name_str = int_name.to_string();
     let inter = interface
         .into_iter()
-        .find(|inter| inter.name == *int_name)
+        .find(|inter| inter.name == *int_name_str.to_string())
         .expect("Failed to get interface");
 
     let (_, mut rx) = match datalink::channel(&inter, Default::default()) {
