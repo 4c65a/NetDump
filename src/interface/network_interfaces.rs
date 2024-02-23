@@ -1,16 +1,16 @@
 use crate::protocol::ip::{ipv4_handler, ipv6_handler};
 use core::panic;
 use pnet::{
-    datalink::{self, interfaces, Channel::Ethernet},
+    datalink::{self, interfaces, Channel::Ethernet, NetworkInterface},
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
 
 pub fn interface(int_name: &str) {
     let interface = interfaces();
-    let int_name_str = int_name.to_string();
+    // let int_name_str = int_name.to_string();
     let inter = interface
         .into_iter()
-        .find(|inter| inter.name == *int_name_str.to_string())
+        .find(|inter: &NetworkInterface| inter.name == int_name)
         .expect("Failed to get interface");
 
     let (_, mut rx) = match datalink::channel(&inter, Default::default()) {
