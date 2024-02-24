@@ -10,15 +10,15 @@ pub fn interface(int_name: &str) {
     // let int_name_str = int_name.to_string();
     let inter = interface
         .into_iter()
-        .find(|inter: &NetworkInterface| inter.name == int_name)
+        .find(|inters: &NetworkInterface| inters.name == int_name)
         .expect("Failed to get interface");
 
-    let (_, mut rx) = match datalink::channel(&inter, Default::default()) {
+    let (_tx, mut rx) = match datalink::channel(&inter, Default::default()) {
         Ok(Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unhandled"),
         Err(e) => panic!("Failed to channel {e}"),
     };
-
+    println!("Listening on interface {}", int_name);
     loop {
         match rx.next() {
             Ok(packets) => {
@@ -26,6 +26,7 @@ pub fn interface(int_name: &str) {
                 match packets.get_ethertype() {
                     EtherTypes::Ipv4 => ipv4_handler(&packets),
                     EtherTypes::Ipv6 => ipv6_handler(&packets),
+
                     _ => {
                         println!("Unhandled EtherType: {:?}", packets.get_ethertype());
                     }
