@@ -82,15 +82,12 @@ pub fn ipv4_handler(ether: &EthernetPacket) {
         }
     }
 }
-pub fn ipv6_handler(
-    ether: &EthernetPacket,
-    headertcp: &'static dyn HeaderDataTcp,
-    headeripv6: &'static dyn HeaderDataIpv6,
-    headerudp: &'static dyn HeaderDataUdp,
-    headericmp: &'static dyn HeaderDataIcmp,
-) {
+pub fn ipv6_handler(ether: &EthernetPacket) {
     if ether.get_ethertype() == EtherTypes::Ipv6 {
         let packet = Ipv6Packet::new(ether.payload()).unwrap();
+        let tcp = TcpPacket::new(ether.payload()).unwrap();
+        let udp = UdpPacket::new(ether.payload()).unwrap();
+        let icmp = IcmpPacket::new(ether.payload()).unwrap();
         if packet.get_next_header() == IpNextHeaderProtocols::Tcp {
             let source = headertcp.get_source();
             let source_ipv6 = headeripv6.get_source();
