@@ -22,7 +22,7 @@ fn main() {
         interface::network_interfaces::interface(int_name);
     } else {
         // Handle missing or invalid arguments
-        println!("Usage: netdump [--list] [--interface <interface_name>]");
+        println!("Usage: netdump [--list] [--interface <interface_name>] --ping ip  --traceroute ip  --wifi_speed");
     }
 
     // match matches.subcommand() {
