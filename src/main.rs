@@ -1,8 +1,10 @@
 use crate::interface::list_interface;
 use std::env;
-//use log::info;
+
 mod interface;
 mod protocol;
+mod route;
+mod speed;
 
 fn main() {
     // Parse command-line arguments using a dedicated library
@@ -39,21 +41,4 @@ fn main() {
         println!("Usage: netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>] [--wifi_speed]");
         println!("-------------------------------------------------------------------------------------------------------");
     }
-
-    // match matches.subcommand() {
-    //     Some(("list", _)) => {
-    //         let index = list_interface::index_interface();
-    //          for name in index {
-    //             println!("- {}", name);
-    //         }
-    //     }
-    //     Some(("interface", m)) => {
-    //         if let Some(int_name) = m.get_one::<String>("interface") {
-    //             interface::network_interfaces::interface(int_name.as_str());
-    //         } else {
-    //              println!("No interface specified");
-    //         }
-    //     }
-    //     _ => info!("Clap don't command"),
-    // };
 }
