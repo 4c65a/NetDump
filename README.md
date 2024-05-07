@@ -9,7 +9,6 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 ## Goals
 - [x] List Interface of your own system
 - [x] Packet Capture
-- [ ] New Protocols
 - [ ] Ping
 - [ ] Traceroute
 - [ ] Wifi Speed 
