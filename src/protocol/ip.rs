@@ -73,6 +73,7 @@ pub fn ipv6_handler(ether: &EthernetPacket) {
         let tcp = TcpPacket::new(ether.payload()).unwrap();
         let udp = UdpPacket::new(ether.payload()).unwrap();
         let icmp = IcmpPacket::new(ether.payload()).unwrap();
+
         if packet.get_next_header() == IpNextHeaderProtocols::Tcp {
             let source = tcp.get_source();
             let source_ipv6 = packet.get_source();
