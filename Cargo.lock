@@ -1203,6 +1203,7 @@ dependencies = [
  "cargo-watch",
  "log",
  "pnet",
+ "rand",
 ]
 
 [[package]]
