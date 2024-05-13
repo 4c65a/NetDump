@@ -1,27 +1,34 @@
 use pnet::datalink::interfaces;
 
-pub fn index_interface() -> Vec<String> {
-    let interfaces = interfaces();
-    // Filter and collect interface names
-    let filtered_interfaces = interfaces
-        .iter()
-        .filter(|e| e.is_up() && !e.ips.is_empty())
-        .map(|e| e.name.to_string())
-        .collect();
-    filtered_interfaces
+pub fn filter_interfaces(name: &str) -> Result<(), std::io::Error> {
+    let inter = interfaces()
+        .into_iter()
+        .filter(|a| a.name == name.to_string());
+    for interfaces in inter {
+        println!();
+        println!("Name: {}", interfaces.name);
+        println!("Description: {}", interfaces.description);
+        println!("Index: {}", interfaces.index);
+        println!("MAC: {:?}", interfaces.mac);
+        println!("IPs: {:?}", interfaces.ips);
+        println!("Flags: {}", interfaces.flags);
+        println!();
+    }
+    Ok(())
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_index_interface() {
-        //let fn_interface = index_interface();
-        let interfaces = interfaces();
-        let filter = interfaces.iter().filter(|e| e.is_up() && !e.ips.is_empty());
-        for inter in filter {
-            println!("- {}", inter.name);
-        }
+pub fn index_interface() -> Result<(), std::io::Error> {
+    let inter = interfaces();
+    //let interface = vec![inter];
+    for interfaces in inter {
+        println!();
+        println!("Name: {}", interfaces.name);
+        println!("Description: {}", interfaces.description);
+        println!("Index: {}", interfaces.index);
+        println!("MAC: {:?}", interfaces.mac);
+        println!("IPs: {:?}", interfaces.ips);
+        println!("Flags: {}", interfaces.flags);
+        println!();
     }
+    Ok(())
 }
