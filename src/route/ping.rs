@@ -19,7 +19,7 @@
 
 /*
     Input IP
-    Create packet ICMP >> Ipv4
+    Create packet ICMP >> Ipv4 >> icmp6 >> ipv6
     Socket connection
     Send packet ICMP
     Receive packet ICMP

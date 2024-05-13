@@ -1,4 +1,4 @@
-use crate::interface::list_interface;
+use crate::interface::*;
 use std::env;
 
 mod interface;
@@ -12,10 +12,8 @@ fn main() {
 
     // Handle --list argument
     if args.contains(&"--list".to_string()) {
-        let index = list_interface::index_interface();
-        for name in index {
-            println!("- {}", name);
-        }
+        let inter = list_interface::index_interface();
+        print!("{:?}", inter)
     } else if args.len() >= 3 && args[1] == "--interface" {
         // Access interface name if provided after --interface
         let int_name = &args[2];
