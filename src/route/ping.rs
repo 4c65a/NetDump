@@ -26,21 +26,21 @@
     Output
 */
 
-use std::net::Ipv4Addr;
-
+use core::panic;
 use pnet::{
     packet::{
         icmp::{
             echo_request::{IcmpCodes, MutableEchoRequestPacket},
             IcmpTypes,
         },
-        ip::IpNextHeaderProtocols::{self, Ipv4},
-        ipv4::Ipv4Flags, MutableIpv4Packet},
+        ip::IpNextHeaderProtocols,
+        ipv4::{Ipv4Flags, MutableIpv4Packet},
         util, Packet,
     },
-    transport,
+    transport::{self, transport_channel, TransportProtocol},
 };
 use rand::random;
+use std::net::Ipv4Addr;
 
 fn create_packet_ipv4<'a>(
     header: &'a mut [u8],
@@ -79,5 +79,12 @@ fn create_packet_icmp<'a>(
 }
 
 pub fn ping(destination: Ipv4Addr) {
-    let protocol = transport::TransportChannelType::Layer4(Ipv4(IpNextHeaderProtocols::Icmp));
+    //let protocol = transport::TransportProtocol::Ipv4(IpNextHeaderProtocols::Icmp);
+    let transport_ipv4 = transport::TransportChannelType::Layer4(TransportProtocol::Ipv4(
+        IpNextHeaderProtocols::Icmp,
+    ));
+    let (mut tx, mut rx) = match transport_channel(4056, transport_ipv4) {
+        Ok((tx, rx)) => (tx, rx),
+        Err(error) => panic!("ERROR TRANSPORT CHANNEL: {:?}", error),
+    };
 }
