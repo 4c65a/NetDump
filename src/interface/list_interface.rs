@@ -3,7 +3,7 @@ use pnet::datalink::interfaces;
 pub fn filter_interfaces(name: &str) -> Result<(), std::io::Error> {
     let inter = interfaces()
         .into_iter()
-        .filter(|a| a.name == name.to_string());
+        .filter(|a| a.name == *name.to_string());
     for interfaces in inter {
         println!();
         println!("Name: {}", interfaces.name);
