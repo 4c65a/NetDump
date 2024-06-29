@@ -4,7 +4,7 @@ use pnet::{
     datalink::{self, interfaces, Channel::Ethernet, NetworkInterface},
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
-
+#[allow(dead_code)]
 pub fn interface(int_name: &str) {
     let interface = interfaces();
     // let int_name_str = int_name.to_string();

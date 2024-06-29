@@ -26,65 +26,96 @@
     Output
 */
 
-use core::panic;
 use pnet::{
-    packet::{
-        icmp::{
-            echo_request::{IcmpCodes, MutableEchoRequestPacket},
-            IcmpTypes,
-        },
-        ip::IpNextHeaderProtocols,
-        ipv4::{Ipv4Flags, MutableIpv4Packet},
-        util, Packet,
-    },
-    transport::{self, transport_channel, TransportProtocol},
+    self,
+    packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4},
+    transport::{icmp_packet_iter, TransportChannelType},
 };
-use rand::random;
-use std::net::Ipv4Addr;
 
-fn create_packet_ipv4<'a>(
-    header: &'a mut [u8],
-    destination: Ipv4Addr,
-) -> Result<MutableIpv4Packet<'a>, std::io::Error> {
-    let mut ipv4_packet = MutableIpv4Packet::new(header).unwrap();
+use std::{
+    io,
+    net::{Ipv4Addr, ToSocketAddrs},
+    str::FromStr,
+    thread,
+    time::{Duration, Instant},
+};
 
-    ipv4_packet.set_version(4);
-    ipv4_packet.set_header_length(5);
-    ipv4_packet.set_total_length(ipv4_packet.packet().len() as u16);
-    ipv4_packet.set_identification(257u16.to_be());
-    ipv4_packet.set_flags(Ipv4Flags::DontFragment);
-    ipv4_packet.set_fragment_offset(0);
-    ipv4_packet.set_ttl(64);
-    ipv4_packet.set_next_level_protocol(IpNextHeaderProtocols::Icmp);
+use super::create_packet::create_packet;
 
-    let checksum = ipv4_packet.packet();
-    ipv4_packet.set_checksum(util::checksum(checksum, 1));
-    ipv4_packet.set_source(Ipv4Addr::new(192, 168, 0, 1));
-    ipv4_packet.set_destination(destination);
+fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
+    if let Ok(ip) = Ipv4Addr::from_str(hostname) {
+        return Ok(ip);
+    }
 
-    Ok(ipv4_packet)
+    let addr = format!("{}:0", hostname);
+    let socket_addr = addr.to_socket_addrs()?.next().unwrap();
+    if let std::net::SocketAddr::V4(socket_addr_v4) = socket_addr {
+        Ok(*socket_addr_v4.ip())
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Invalid hostname",
+        ))
+    }
 }
 
-fn create_packet_icmp<'a>(
-    header: &'a mut [u8],
-) -> Result<MutableEchoRequestPacket<'_>, std::io::Error> {
-    let mut icmp_packet = MutableEchoRequestPacket::new(header).unwrap();
-    icmp_packet.set_icmp_type(IcmpTypes::EchoRequest);
-    icmp_packet.set_icmp_code(IcmpCodes::NoCode);
-    icmp_packet.set_checksum(util::checksum(icmp_packet.packet(), 1));
-    icmp_packet.set_identifier(random::<u16>());
-    icmp_packet.set_sequence_number(1);
-
-    Ok(icmp_packet)
-}
-
-pub fn ping(destination: Ipv4Addr) {
-    //let protocol = transport::TransportProtocol::Ipv4(IpNextHeaderProtocols::Icmp);
-    let transport_ipv4 = transport::TransportChannelType::Layer4(TransportProtocol::Ipv4(
+pub fn ping(hostname: &str) {
+    let transport_ipv4 = TransportChannelType::Layer4(pnet::transport::TransportProtocol::Ipv4(
         IpNextHeaderProtocols::Icmp,
     ));
-    let (mut tx, mut rx) = match transport_channel(4056, transport_ipv4) {
+
+    let (mut tx, mut rx) = match pnet::transport::transport_channel(4096, transport_ipv4) {
         Ok((tx, rx)) => (tx, rx),
         Err(error) => panic!("ERROR TRANSPORT CHANNEL: {:?}", error),
     };
+
+    let mut sequence = 0;
+
+    loop {
+        let destination_ip = resolve_host(hostname).expect("Failed to resolve hostname");
+        //let ipv4_packet: Result<Vec<u8>, std::io::Error> = create_packet_ipv4(destination_ip);
+        //let ipv4_packet = create_packet_ipv4(destination_ip);
+
+        //match tx.send_to(&ipv4_packet, destination_ip.into()) {
+        //   Ok(_) => println!("Packet {} sent to {}", sequence + 1, destination_ip),
+        //    Err(error) => println!("Failed to send packet: {:?}", error),
+        //}
+
+        match create_packet(destination_ip) {
+            Ok(ipv4_packet) => {
+                if let Some(packet) = ipv4::Ipv4Packet::new(&ipv4_packet) {
+                    match tx.send_to(packet, destination_ip.into()) {
+                        Ok(_) => println!("Packet {} sent to {}", sequence + 1, destination_ip),
+                        Err(error) => println!("Failed to send packet: {:?}", error),
+                    }
+                } else {
+                    println!("Failed to create IPv4 packet");
+                }
+            }
+            Err(error) => println!("Failed to create ipv4_packet: {:?}", error),
+        }
+
+        let mut iter = icmp_packet_iter(&mut rx);
+        let start_time = Instant::now();
+        loop {
+            match iter.next_with_timeout(Duration::from_secs(1)) {
+                Ok(Some((packet, _))) => {
+                    if packet.get_icmp_type() == IcmpTypes::EchoReply {
+                        println!("Received ICMP echo reply in {:?}", start_time.elapsed());
+                        break;
+                    }
+                }
+                Ok(None) => {
+                    println!("Timeout waiting for ICMP echo reply");
+                    break;
+                }
+                Err(e) => {
+                    println!("An error occurred while waiting for ICMP echo reply: {}", e);
+                    break;
+                }
+            }
+        }
+        sequence += 1;
+        thread::sleep(Duration::from_secs(1));
+    }
 }

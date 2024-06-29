@@ -1,5 +1,6 @@
 use pnet::datalink::interfaces;
 
+#[allow(dead_code)]
 pub fn filter_interfaces(name: &str) -> Result<(), std::io::Error> {
     let inter = interfaces()
         .into_iter()
@@ -16,7 +17,7 @@ pub fn filter_interfaces(name: &str) -> Result<(), std::io::Error> {
     }
     Ok(())
 }
-
+#[allow(dead_code)]
 pub fn index_interface() -> Result<(), std::io::Error> {
     let inter = interfaces();
     //let interface = vec![inter];
