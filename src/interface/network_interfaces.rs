@@ -4,6 +4,8 @@ use pnet::{
     datalink::{self, interfaces, Channel::Ethernet, NetworkInterface},
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
+
+//Change name file network_interface.rs to packet_capture.rs
 #[allow(dead_code)]
 pub fn interface(int_name: &str) {
     let interface = interfaces();

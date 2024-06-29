@@ -47,8 +47,9 @@ fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
         return Ok(ip);
     }
 
-    let addr = format!("{}:0", hostname);
+    let addr = format!("{}:80", hostname);
     let socket_addr = addr.to_socket_addrs()?.next().unwrap();
+
     if let std::net::SocketAddr::V4(socket_addr_v4) = socket_addr {
         Ok(*socket_addr_v4.ip())
     } else {
@@ -59,6 +60,7 @@ fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
     }
 }
 
+//Add
 pub fn ping(hostname: &str) {
     let transport_ipv4 = TransportChannelType::Layer4(pnet::transport::TransportProtocol::Ipv4(
         IpNextHeaderProtocols::Icmp,

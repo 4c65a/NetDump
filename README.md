@@ -12,3 +12,18 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 - [ ] Ping
 - [ ] Traceroute
 - [ ] Wifi Speed 
+
+## Goals 2
+# Ping and Tracerouter
+- [] Add stop after count replies like ping 
+- [] Add ICMP6(echo) and IPV6
+- [] Add TCP SYN (IPV4 and IPV6)
+- [] Add UPD (IPV4 and IPV6)
+
+# Packet Capture 
+- [] Add new protocols 
+  - [] 
+- [] Filter 
+  - [] Port
+  - [] Ip Address 
+  - [] Protocols

@@ -12,6 +12,8 @@ use std::{io, net::Ipv4Addr};
 const ICMP_SIZE: usize = 64;
 const IPV4_SIZE: usize = 64;
 
+//Add echo_reply
+
 //Create packet IPV4
 pub fn create_packet<'a>(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     let mut ipv4_header = [0; IPV4_SIZE];
