@@ -2,10 +2,10 @@
 - [NetDump](#netdump)
   - [What is?](#what-is)
     - [Command](#command)
-  - [Goals](#goals)
+- [Goals](#goals)
   - [Goals 2](#goals-2)
-  - [Ping and Tracerouter](#ping-and-tracerouter)
-  - [Packet Capture](#packet-capture)
+    - [Ping and Tracerouter](#ping-and-tracerouter)
+    - [Packet Capture](#packet-capture)
 <!--toc:end-->
 
 # NetDump
