@@ -22,6 +22,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 - [ ] Ping
 - [ ] Traceroute
 - [ ] Wifi Speed 
+- [ ] Add clap command
 
 ## Goals 2
 # Ping and Tracerouter
@@ -31,7 +32,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 - [ ] Add UPD (IPV4 and IPV6)
 
 # Packet Capture 
-- [ ] **Add new protocols** 
+- [ ] Add new protocols 
   - [ ] Ethernet
   - [x] IPv4 and IPv6
   - [x] TCP
@@ -49,7 +50,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
   - [ ] NTP
   - [ ] VoIP Protocols (SIP, RTP)
    
-- [ ] **Filter** 
+- [ ] Filter
   - [ ] Port
   - [ ] Ip Address 
   - [ ] Protocols
