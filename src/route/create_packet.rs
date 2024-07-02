@@ -15,7 +15,7 @@ const IPV4_SIZE: usize = 64;
 //Add echo_reply
 
 //Create packet IPV4
-pub fn create_packet<'a>(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
+pub fn create_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     let mut ipv4_header = [0; IPV4_SIZE];
 
     let icmp_packet = create_packet_icmp(&mut ipv4_header)?;
@@ -41,14 +41,14 @@ pub fn create_packet<'a>(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     Ok(ipv4_packet.packet().to_vec())
 }
 
-fn create_packet_icmp<'a>(header: &'a mut [u8; ICMP_SIZE]) -> Result<Vec<u8>, io::Error> {
+fn create_packet_icmp(header: &mut [u8; ICMP_SIZE]) -> Result<Vec<u8>, io::Error> {
     let mut raw_packet: Vec<u8> = vec![0; MutableIcmpPacket::minimum_packet_size() + header.len()];
     let mut icmp_packet = MutableIcmpPacket::new(&mut raw_packet).unwrap();
     icmp_packet.payload();
     icmp_packet.set_icmp_type(IcmpTypes::EchoRequest);
     icmp_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
     icmp_packet.set_checksum(0);
-    icmp_packet.set_checksum(util::checksum(&icmp_packet.packet(), 1));
+    icmp_packet.set_checksum(util::checksum(icmp_packet.packet(), 1));
 
     Ok(icmp_packet.packet().to_vec())
 }

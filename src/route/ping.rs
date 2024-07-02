@@ -26,6 +26,7 @@
     Output
 */
 
+use log::LevelFilter;
 use pnet::{
     self,
     packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4},
@@ -33,35 +34,48 @@ use pnet::{
 };
 
 use std::{
-    io,
-    net::{Ipv4Addr, ToSocketAddrs},
+    io::{self, Error},
+    net::{IpAddr, Ipv4Addr},
     str::FromStr,
     thread,
     time::{Duration, Instant},
 };
 
+use tokio::net::lookup_host;
+
 use super::create_packet::create_packet;
 
-fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
-    if let Ok(ip) = Ipv4Addr::from_str(hostname) {
-        return Ok(ip);
+async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
+    //if let Ok(ip_addr) = IpAddr::V4(ip_addr) {
+    //    return Ok(ip_addr);
+    //}
+    // if let Ok(ip) = Ipv4Addr::from_str(hostname) {
+
+    // return Ok(ip);
+    // }
+
+    let host_port = format!("{hostname}:0");
+    let mut addresses = lookup_host(host_port).await?;
+
+    if let Some(addr) = &addresses.next() {
+        match addr.ip() {
+            IpAddr::V4(ip) => return Ok(ip),
+            IpAddr::V6(_) => {
+                return Err(Error::new(
+                    io::ErrorKind::Other,
+                    "ROS_HOSTNAME resolved to an IPv6 address which is not supported",
+                ))
+            }
+        }
     }
 
-    let addr = format!("{}:80", hostname);
-    let socket_addr = addr.to_socket_addrs()?.next().unwrap();
-
-    if let std::net::SocketAddr::V4(socket_addr_v4) = socket_addr {
-        Ok(*socket_addr_v4.ip())
-    } else {
-        Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Invalid hostname",
-        ))
-    }
+    Err(Error::new(
+        io::ErrorKind::Other,
+        "No valid IP address found",
+    ))
 }
 
-//Add
-pub fn ping(hostname: &str) {
+pub async fn ping(hostname: &str) {
     let transport_ipv4 = TransportChannelType::Layer4(pnet::transport::TransportProtocol::Ipv4(
         IpNextHeaderProtocols::Icmp,
     ));
@@ -74,7 +88,9 @@ pub fn ping(hostname: &str) {
     let mut sequence = 0;
 
     loop {
-        let destination_ip = resolve_host(hostname).expect("Failed to resolve hostname");
+        let destination_ip = resolve_host(hostname)
+            .await
+            .expect("Failed to resolve hostname");
         //let ipv4_packet: Result<Vec<u8>, std::io::Error> = create_packet_ipv4(destination_ip);
         //let ipv4_packet = create_packet_ipv4(destination_ip);
 
