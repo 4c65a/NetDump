@@ -26,17 +26,19 @@
     Output
 */
 
-use log::LevelFilter;
 use pnet::{
     self,
-    packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4},
+    packet::{
+        icmp::{echo_reply::EchoReplyPacket, echo_request::EchoRequestPacket, IcmpTypes},
+        ip::IpNextHeaderProtocols,
+        ipv4, Packet,
+    },
     transport::{icmp_packet_iter, TransportChannelType},
 };
 
 use std::{
     io::{self, Error},
     net::{IpAddr, Ipv4Addr},
-    str::FromStr,
     thread,
     time::{Duration, Instant},
 };
@@ -74,7 +76,6 @@ async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
         "No valid IP address found",
     ))
 }
-
 pub async fn ping(hostname: &str) {
     let transport_ipv4 = TransportChannelType::Layer4(pnet::transport::TransportProtocol::Ipv4(
         IpNextHeaderProtocols::Icmp,
@@ -91,13 +92,6 @@ pub async fn ping(hostname: &str) {
         let destination_ip = resolve_host(hostname)
             .await
             .expect("Failed to resolve hostname");
-        //let ipv4_packet: Result<Vec<u8>, std::io::Error> = create_packet_ipv4(destination_ip);
-        //let ipv4_packet = create_packet_ipv4(destination_ip);
-
-        //match tx.send_to(&ipv4_packet, destination_ip.into()) {
-        //   Ok(_) => println!("Packet {} sent to {}", sequence + 1, destination_ip),
-        //    Err(error) => println!("Failed to send packet: {:?}", error),
-        //}
 
         match create_packet(destination_ip) {
             Ok(ipv4_packet) => {
@@ -115,12 +109,19 @@ pub async fn ping(hostname: &str) {
 
         let mut iter = icmp_packet_iter(&mut rx);
         let start_time = Instant::now();
+
         loop {
-            match iter.next_with_timeout(Duration::from_secs(1)) {
-                Ok(Some((packet, _))) => {
-                    if packet.get_icmp_type() == IcmpTypes::EchoReply {
-                        println!("Received ICMP echo reply in {:?}", start_time.elapsed());
-                        break;
+            match iter.next_with_timeout(Duration::from_secs(3)) {
+                Ok(Some((packet, addr))) => {
+                    if let Some(reply) = EchoReplyPacket::new(packet.packet()) {
+                        println!(
+                            "ICMP EchoReply received from {:?}: {:?}, Time: {:?}",
+                            addr,
+                            reply.get_icmp_type(),
+                            start_time.elapsed()
+                        );
+                    } else {
+                        println!("Failed to parse EchoReply packet");
                     }
                 }
                 Ok(None) => {
@@ -133,6 +134,7 @@ pub async fn ping(hostname: &str) {
                 }
             }
         }
+
         sequence += 1;
         thread::sleep(Duration::from_secs(1));
     }

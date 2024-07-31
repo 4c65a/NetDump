@@ -1,6 +1,6 @@
 use route::ping::ping;
 //use crate::interface::*;
-use std::{env, net::Ipv4Addr};
+use std::env;
 
 mod interface;
 mod protocol;
@@ -25,6 +25,6 @@ async fn main() {
         //let destination_str = destination.to_string();
         ping(&destination).await;
     } else {
-        eprintln!("Uso: programa [--list | --interface <name> | -ping <destination>]");
+        eprintln!("Uso: programa [--list | --interface <name> | --ping <destination>]");
     }
 }
