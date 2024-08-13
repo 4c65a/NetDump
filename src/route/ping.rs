@@ -1,22 +1,3 @@
-// https://docs.rs/pnet/latest/pnet/
-/*
-    Example input
-    netdump 192.126.215
-    netdump hola.com > 192.126.215
-    netdump hola.com -count 10 (packet)
-*/
-
-/*
-    Example Output
-    ping -c 1 google.com
-    PING google.com (172.217.172.110) 56(84) bytes of data.
-    64 bytes from eze06s02-in-f14.1e100.net (172.217.172.110): icmp_seq=1 ttl=58 time=51.3 ms
-
-    --- google.com ping statistics ---
-    1 packets transmitted, 1 received, 0% packet loss, time 0ms
-    rtt min/avg/max/mdev = 51.296/51.296/51.296/0.000 ms
-*/
-
 /*
     Input IP
     Create packet ICMP >> Ipv4 >> icmp6 >> ipv6
@@ -29,9 +10,10 @@
 use pnet::{
     self,
     packet::{
-        icmp::{echo_reply::EchoReplyPacket, echo_request::EchoRequestPacket, IcmpTypes},
+        icmp::{IcmpPacket, IcmpTypes},
         ip::IpNextHeaderProtocols,
-        ipv4, Packet,
+        ipv4::{self, Ipv4Packet},
+        Packet,
     },
     transport::{icmp_packet_iter, TransportChannelType},
 };
@@ -45,17 +27,9 @@ use std::{
 
 use tokio::net::lookup_host;
 
-use super::create_packet::create_packet;
+use super::create_packet::handle_packet;
 
 async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
-    //if let Ok(ip_addr) = IpAddr::V4(ip_addr) {
-    //    return Ok(ip_addr);
-    //}
-    // if let Ok(ip) = Ipv4Addr::from_str(hostname) {
-
-    // return Ok(ip);
-    // }
-
     let host_port = format!("{hostname}:0");
     let mut addresses = lookup_host(host_port).await?;
 
@@ -76,12 +50,11 @@ async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
         "No valid IP address found",
     ))
 }
-pub async fn ping(hostname: &str) {
-    let transport_ipv4 = TransportChannelType::Layer4(pnet::transport::TransportProtocol::Ipv4(
-        IpNextHeaderProtocols::Icmp,
-    ));
 
-    let (mut tx, mut rx) = match pnet::transport::transport_channel(4096, transport_ipv4) {
+pub async fn ping(hostname: &str) {
+    let transport_layer3 = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
+
+    let (mut tx, mut rx) = match pnet::transport::transport_channel(4096, transport_layer3) {
         Ok((tx, rx)) => (tx, rx),
         Err(error) => panic!("ERROR TRANSPORT CHANNEL: {:?}", error),
     };
@@ -93,7 +66,7 @@ pub async fn ping(hostname: &str) {
             .await
             .expect("Failed to resolve hostname");
 
-        match create_packet(destination_ip) {
+        match handle_packet(destination_ip) {
             Ok(ipv4_packet) => {
                 if let Some(packet) = ipv4::Ipv4Packet::new(&ipv4_packet) {
                     match tx.send_to(packet, destination_ip.into()) {
@@ -111,17 +84,26 @@ pub async fn ping(hostname: &str) {
         let start_time = Instant::now();
 
         loop {
+            //Envia paquete cada 3 o X segundos
+            //Utilizar echo_reply para recibir la respuesta del dispositivo
             match iter.next_with_timeout(Duration::from_secs(3)) {
-                Ok(Some((packet, addr))) => {
-                    if let Some(reply) = EchoReplyPacket::new(packet.packet()) {
-                        println!(
-                            "ICMP EchoReply received from {:?}: {:?}, Time: {:?}",
-                            addr,
-                            reply.get_icmp_type(),
-                            start_time.elapsed()
-                        );
+                Ok(Some((packet, _))) => {
+                    let ipv4_packet =
+                        Ipv4Packet::new(packet.packet()).expect("Failed to parse IPv4 packet");
+                    if let Some(icmp_packet) = IcmpPacket::new(ipv4_packet.payload()) {
+                        let icmp_type = icmp_packet.get_icmp_type();
+                        if icmp_type == IcmpTypes::EchoReply {
+                            println!(
+                                "Source: {:?} | Destination: {:?} | TTL: {:?} | Time: {:?}",
+                                ipv4_packet.get_source(),
+                                ipv4_packet.get_destination(),
+                                ipv4_packet.get_ttl(),
+                                start_time.elapsed()
+                            );
+                        }
+                        break;
                     } else {
-                        println!("Failed to parse EchoReply packet");
+                        eprintln!("Received a non-ICMP packet");
                     }
                 }
                 Ok(None) => {

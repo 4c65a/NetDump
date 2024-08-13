@@ -33,3 +33,12 @@ pub fn index_interface() -> Result<(), std::io::Error> {
     }
     Ok(())
 }
+
+/* #[allow(dead_code)]
+pub fn get_ip_public() -> Result<(), std::io::Error> {
+    let inter = interfaces()
+        .iter()
+        .find(|e| e.is_up() && !e.is_loopback() && !e.ips.is_empty());
+
+   Ok(())
+} */
