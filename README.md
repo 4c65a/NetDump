@@ -28,8 +28,6 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 # Ping and Tracerouter
 - [ ] Add stop after count replies like ping 
 - [ ] Add ICMP6(echo) and IPV6
-- [ ] Add TCP SYN (IPV4 and IPV6)
-- [ ] Add UPD (IPV4 and IPV6)
 - [ ] Seconds between sending each packe
 - [ ] Know about that if the device is living and uses a file containing multiple IPs or hosts for verification
   

@@ -5,13 +5,21 @@ use pnet::{
             echo_request::{self, MutableEchoRequestPacket},
             IcmpTypes,
         },
-        ip::IpNextHeaderProtocols,
+        icmpv6::{
+            echo_request::{self, MutableEchoRequestPacket},
+            Icmpv6Types,
+        },
+        ip::{IpNextHeaderProtocol, IpNextHeaderProtocols},
         ipv4::{self, MutableIpv4Packet},
+        ipv6::MutableIpv6Packet,
         util, Packet,
     },
 };
 
-use std::{io, net::Ipv4Addr};
+use std::{
+    io,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 const PAYLOAD_ICMP: usize = 56;
 const ICMP_SIZE: usize = 8;
@@ -56,13 +64,27 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
 
     let checksum = util::checksum(ipv4_packet.packet(), 1);
     ipv4_packet.set_checksum(checksum);
-    ipv4_packet.set_source(Ipv4Addr::new(192, 168, 1, 200));
     ipv4_packet.set_destination(destination);
+}
+
+pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destinantion: Ipv6Addr) {
+    ipv6_packet.set_version(6);
+    ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
+    ipv6_packet.set_destination(destinantion);
 }
 
 fn create_packet_icmp(echo_packet: &mut MutableEchoRequestPacket) {
     echo_packet.set_icmp_type(IcmpTypes::EchoRequest);
     echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
+    echo_packet.set_identifier(1);
+    echo_packet.set_sequence_number(1);
+}
+
+fn create_packet_icmp6(
+    echo_packet: &mut pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket,
+) {
+    echo_packet.set_icmpv6_type(Icmpv6Types::EchoRequest);
+    echo_packet.set_icmpv6_code(pnet::packet::icmpv6::echo_request::Icmpv6Codes::NoCode);
     echo_packet.set_identifier(1);
     echo_packet.set_sequence_number(1);
 }
