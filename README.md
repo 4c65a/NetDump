@@ -19,7 +19,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 ## Goals
 - [x] List Interface of your own system
 - [x] Packet Capture
-- [ ] Ping
+- [x] Ping
 - [ ] Traceroute
 - [ ] Wifi Speed 
 - [ ] Add clap command
@@ -30,7 +30,9 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 - [ ] Add ICMP6(echo) and IPV6
 - [ ] Add TCP SYN (IPV4 and IPV6)
 - [ ] Add UPD (IPV4 and IPV6)
-
+- [ ] Seconds between sending each packe
+- [ ] Know about that if the device is living and uses a file containing multiple IPs or hosts for verification
+  
 # Packet Capture 
 - [ ] Add new protocols 
   - [ ] Ethernet
@@ -44,7 +46,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
   - [ ] DNS
   - [ ] DHCP
   - [ ] ARP
-  - [x] ICMP
+  - [x] ICMP and ICMP6
   - [ ] SNMP
   - [ ] Telnet and SSH
   - [ ] NTP
