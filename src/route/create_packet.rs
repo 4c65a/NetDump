@@ -13,9 +13,10 @@ use pnet::{
 
 use std::{io, net::Ipv4Addr};
 
+const PAYLOAD_ICMP: usize = 56;
 const ICMP_SIZE: usize = 8;
 const IPV4_SIZE: usize = 20;
-const TOTAL_SIZE: usize = IPV4_SIZE + ICMP_SIZE;
+const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
 pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     // Crear y configurar el paquete ICMP
@@ -28,11 +29,12 @@ pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     icmp.set_checksum(icmp_checksum);
 
     // Crear y configurar el paquete IPv4
-    //let mut ip_packet: [u8; IPV4_SIZE + ICMP_SIZE] = [0; IPV4_SIZE + ICMP_SIZE];
-    let mut ip_packet: [u8; TOTAL_SIZE] = [0; TOTAL_SIZE];
+    let mut ip_packet: [u8; TOTAL_LENGTH_SIZE] = [0; TOTAL_LENGTH_SIZE];
     let mut ipv4 = MutableIpv4Packet::new(&mut ip_packet).unwrap();
     ipv4_create_packet(&mut ipv4, destination);
 
+    //Establecer el tamaño total
+    ipv4.set_total_length((TOTAL_LENGTH_SIZE + icmp.packet().len()) as u16);
     // Establecer la carga útil del IPv4 con el paquete ICMP
     ipv4.set_payload(icmp.packet());
 
@@ -45,36 +47,22 @@ pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
 
 pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4Addr) {
     ipv4_packet.set_version(4);
-    ipv4_packet.set_header_length(5);
-    ipv4_packet.set_total_length(TOTAL_SIZE as u16);
+    ipv4_packet.set_header_length((IPV4_SIZE / 4) as u8);
     ipv4_packet.set_identification(257u16.to_be());
     ipv4_packet.set_flags(ipv4::Ipv4Flags::DontFragment);
     ipv4_packet.set_fragment_offset(0);
     ipv4_packet.set_ttl(64);
     ipv4_packet.set_next_level_protocol(IpNextHeaderProtocols::Icmp);
 
-    //let checksum = ipv4_packet.packet();
-    //ipv4_packet.set_payload(&icmp.packet());
     let checksum = util::checksum(ipv4_packet.packet(), 1);
     ipv4_packet.set_checksum(checksum);
-    //ipv4_packet.set_checksum(util::checksum(checksum, 1));
-    //ipv4_packet.set_source(Ipv4Addr::new(192, 168, 1, 200));
+    ipv4_packet.set_source(Ipv4Addr::new(192, 168, 1, 200));
     ipv4_packet.set_destination(destination);
-    //ipv4_packet.set_payload(ipv4_packet.packet());
-    //Ok(ipv4_packet.packet().to_vec())
 }
 
-fn create_packet_icmp(icmp_packet: &mut MutableEchoRequestPacket) {
-    //let mut raw_packet: Vec<u8> = vec![0; ICMP_SIZE];
-    //let mut icmp_packet = MutableIcmpPacket::new(header).unwrap();
-    //let mut icmp_packet = MutableIcmpPacket::new(&mut raw_packet).unwrap();
-    //icmp_packet.payload();
-    icmp_packet.set_icmp_type(IcmpTypes::EchoRequest);
-    icmp_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
-    //icmp_packet.set_checksum(0);
-    icmp_packet.set_identifier(1);
-    icmp_packet.set_sequence_number(1);
-    //icmp_packet.set_checksum(util::checksum(icmp_packet.packet(), 1));
-
-    //Ok(icmp_packet.packet().to_vec())
+fn create_packet_icmp(echo_packet: &mut MutableEchoRequestPacket) {
+    echo_packet.set_icmp_type(IcmpTypes::EchoRequest);
+    echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
+    echo_packet.set_identifier(1);
+    echo_packet.set_sequence_number(1);
 }

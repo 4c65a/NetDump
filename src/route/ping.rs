@@ -70,7 +70,7 @@ pub async fn ping(hostname: &str) {
             Ok(ipv4_packet) => {
                 if let Some(packet) = ipv4::Ipv4Packet::new(&ipv4_packet) {
                     match tx.send_to(packet, destination_ip.into()) {
-                        Ok(_) => println!("Packet {} sent to {}", sequence + 1, destination_ip),
+                        Ok(_) => println!("---------------------------------------- Packet {} sent to {} ----------------------------------------", sequence + 1, destination_ip),
                         Err(error) => println!("Failed to send packet: {:?}", error),
                     }
                 } else {
@@ -93,13 +93,19 @@ pub async fn ping(hostname: &str) {
                     if let Some(icmp_packet) = IcmpPacket::new(ipv4_packet.payload()) {
                         let icmp_type = icmp_packet.get_icmp_type();
                         if icmp_type == IcmpTypes::EchoReply {
+                            let icmp_payload = ipv4_packet.payload();
+                            let icmp_bytes = icmp_payload.len();
+
+                            println!(" ");
                             println!(
-                                "Source: {:?} | Destination: {:?} | TTL: {:?} | Time: {:?}",
-                                ipv4_packet.get_source(),
-                                ipv4_packet.get_destination(),
+                                "                  Bytes: {:?} | Destination: {:?} | TTL: {:?} |  Icmp_seq: {:?} | Time: {:?} ms",
+                                icmp_bytes,
+                                destination_ip,
                                 ipv4_packet.get_ttl(),
-                                start_time.elapsed()
+                                sequence + 1,
+                                start_time.elapsed().as_millis()
                             );
+                            println!(" ");
                         }
                         break;
                     } else {
