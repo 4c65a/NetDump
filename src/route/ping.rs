@@ -39,7 +39,7 @@ async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
             IpAddr::V6(_) => {
                 return Err(Error::new(
                     io::ErrorKind::Other,
-                    "ROS_HOSTNAME resolved to an IPv6 address which is not supported",
+                    "Resolved to an IPv6 address which is not supported",
                 ))
             }
         }
