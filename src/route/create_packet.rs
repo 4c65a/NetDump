@@ -5,11 +5,8 @@ use pnet::{
             echo_request::{self, MutableEchoRequestPacket},
             IcmpTypes,
         },
-        icmpv6::{
-            echo_request::{self, MutableEchoRequestPacket},
-            Icmpv6Types,
-        },
-        ip::{IpNextHeaderProtocol, IpNextHeaderProtocols},
+        icmpv6::Icmpv6Types,
+        ip::IpNextHeaderProtocols,
         ipv4::{self, MutableIpv4Packet},
         ipv6::MutableIpv6Packet,
         util, Packet,
