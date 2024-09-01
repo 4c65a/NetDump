@@ -17,7 +17,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .short('i')
                         .long("interface")
                         .value_name("INTERFACE")
-                        .action(ArgAction::SetTrue)
+                        .action(ArgAction::Set)
                         .help("Add interface type to capture packets."),
                 ),
         )
@@ -39,7 +39,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("filter")
                         .value_name("FILTER")
                         .help("Get the list of interfaces on your system by filtering by name.")
-                        .action(ArgAction::SetTrue),
+                        .action(ArgAction::Set),
                 ),
         )
         // ping --address --min-send --count(packet) --ip6 --save
@@ -47,11 +47,11 @@ pub fn cmd() -> Result<ArgMatches, Error> {
             Command::new("ping")
                 .about("Ping sends an Internet Control Message Protocol (ICMP).")
                 .arg(
-                    Arg::new("destinations")
+                    Arg::new("destination")
                         .short('d')
                         .long("destination")
                         .value_name("DESTINATION")
-                        .action(ArgAction::SetTrue)
+                        .action(ArgAction::Set)
                         .help("Address server."),
                 ), //.arg(Arg::new("min-send").short('m').long("min-send").help(""))
                    //.arg(Arg::new("ip6").short('6').long("ip6").help("")),
