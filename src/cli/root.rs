@@ -1,12 +1,13 @@
-use clap::{self, Arg, ArgAction, ArgMatches, Command, Error};
+use clap::{self, error::Result, Arg, ArgAction, ArgMatches, Command, Error};
 
-pub fn root() -> Result<ArgMatches, Error> {
+pub fn cmd() -> Result<ArgMatches, Error> {
     let matches = Command::new("netdump")
         .author("Lean")
         .about("NetDump is a command tool in the terminal, it has multiple functionalities.")
-        .version("0.0.1")
+        .version("0.1.0")
         .propagate_version(true)
         .arg_required_else_help(true)
+        .color(clap::ColorChoice::Always)
         // cap --interface enp2s0|any --count 10 --cap-send --cap-receive --protocol --port --address 192.168.0.0.1 --save cap.pcap
         .subcommand(
             Command::new("cap")
@@ -16,7 +17,7 @@ pub fn root() -> Result<ArgMatches, Error> {
                         .short('i')
                         .long("interface")
                         .value_name("INTERFACE")
-                        .action(ArgAction::Set)
+                        .action(ArgAction::SetTrue)
                         .help("Add interface type to capture packets."),
                 ),
         )
@@ -28,6 +29,7 @@ pub fn root() -> Result<ArgMatches, Error> {
                     Arg::new("list")
                         .short('l')
                         .long("list")
+                        .value_name("LIST")
                         .help("Get the list of interfaces of your system")
                         .action(ArgAction::SetFalse),
                 )
@@ -35,8 +37,9 @@ pub fn root() -> Result<ArgMatches, Error> {
                     Arg::new("filter")
                         .short('t')
                         .long("filter")
+                        .value_name("FILTER")
                         .help("Get the list of interfaces on your system by filtering by name.")
-                        .action(ArgAction::Set),
+                        .action(ArgAction::SetTrue),
                 ),
         )
         // ping --address --min-send --count(packet) --ip6 --save
@@ -44,9 +47,11 @@ pub fn root() -> Result<ArgMatches, Error> {
             Command::new("ping")
                 .about("Ping sends an Internet Control Message Protocol (ICMP).")
                 .arg(
-                    Arg::new("address")
-                        .short('a')
-                        .long("address")
+                    Arg::new("destinations")
+                        .short('d')
+                        .long("destination")
+                        .value_name("DESTINATION")
+                        .action(ArgAction::SetTrue)
                         .help("Address server."),
                 ), //.arg(Arg::new("min-send").short('m').long("min-send").help(""))
                    //.arg(Arg::new("ip6").short('6').long("ip6").help("")),

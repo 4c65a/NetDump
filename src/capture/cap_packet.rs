@@ -7,7 +7,7 @@ use pnet::{
 
 //Change name file network_interface.rs to packet_capture.rs
 #[allow(dead_code)]
-pub fn interface(int_name: &str) {
+pub fn cap(int_name: &str) {
     let interface = interfaces();
     // let int_name_str = int_name.to_string();
     let inter = interface
