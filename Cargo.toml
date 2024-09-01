@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 cargo-watch = "8.5.2"
+clap = "4.5.16"
 log = "0.4.20"
 pnet = "0.34.0"
 rand = "0.8.5"

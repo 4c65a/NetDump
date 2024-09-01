@@ -28,7 +28,7 @@ use std::{
 use tokio::net::lookup_host;
 
 use super::create_packet::handle_packet;
-
+#[allow(dead_code)]
 async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
     let host_port = format!("{hostname}:0");
     let mut addresses = lookup_host(host_port).await?;
@@ -50,7 +50,7 @@ async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
         "No valid IP address found",
     ))
 }
-
+#[allow(dead_code)]
 pub async fn ping(hostname: &str) {
     let transport_layer3 = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
 
