@@ -1,4 +1,6 @@
+use capture::{cap_packet::cap, interfaces};
 use cli::root::cmd;
+use route::ping::ping;
 
 mod capture;
 mod cli;
@@ -11,13 +13,44 @@ async fn main() {
     let matches = cmd().unwrap();
     match matches.subcommand() {
         // Command cap with subcommand --interface
-        Some() => {}
+        Some(("cap", cap_matches)) => match cap_matches.get_one::<String>("interface") {
+            Some(interface) => {
+                cap(interface);
+            }
+            _ => {
+                println!("Error capturing packets.");
+            }
+        },
         // Command interface with two subcommand --list | --filter
-        Some() => {}
+        Some(("interface", inter_matches)) => {
+            match inter_matches.get_one::<bool>("list") {
+                Some(_) => {
+                    let _ = interfaces::index_interface();
+                }
+                _ => {
+                    println!("Error when displaying interfaces.");
+                }
+            }
+            match inter_matches.get_one::<String>("filter") {
+                Some(filter) => {
+                    interfaces::filter_interfaces(filter).unwrap();
+                }
+                _ => {
+                    println!("Error when displaying interfaces.");
+                }
+            }
+        }
         // Command ping with subcommand --destination
-        Some() => {}
+        Some(("ping", ping_matches)) => match ping_matches.get_one::<String>("destination") {
+            Some(destination) => {
+                ping(destination).await;
+            }
+            _ => {
+                println!("Error send ping.");
+            }
+        },
         _ => {
-            println!("NONE COMMANDS");
+            println!("No commands found");
         }
     }
 }
