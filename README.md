@@ -14,7 +14,7 @@
 Is a project with basic functions for network packet capture.
 
 ### Command
-netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>] [--wifi_speed]
+
 
 ## Goals
 - [x] List Interface of your own system
@@ -22,7 +22,7 @@ netdump [--list] [--interface <interface_name>] [--ping <ip>] [--traceroute <ip>
 - [x] Ping
 - [ ] Traceroute
 - [ ] Wifi Speed 
-- [ ] Add clap command
+- [x] Add clap command
 
 ## Goals 2
 # Ping and Tracerouter
