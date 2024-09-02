@@ -7,7 +7,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
         .version("0.1.0")
         .propagate_version(true)
         .arg_required_else_help(true)
-        .color(clap::ColorChoice::Always)
+        .color(clap::ColorChoice::Auto)
         // cap --interface enp2s0|any --count 10 --cap-send --cap-receive --protocol --port --address 192.168.0.0.1 --save cap.pcap
         .subcommand(
             Command::new("cap")
