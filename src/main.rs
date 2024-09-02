@@ -1,4 +1,7 @@
-use capture::{cap_packet::cap, interfaces};
+use capture::{
+    cap_packet::cap,
+    interfaces::{self},
+};
 use cli::root::cmd;
 use route::ping::ping;
 
@@ -30,42 +33,6 @@ async fn main() {
             } else {
                 println!("No commands found.");
             }
-
-            /* match inter_matches.subcommand() {
-                Some(("list", list)) => {
-                    if list.contains_id("list") {
-                        interfaces::index_interface().unwrap();
-                    } else {
-                        println!("Error when displaying interfaces.");
-                    }
-                }
-                _ => {
-                    println!("No commands found");
-                }
-            }*/
-
-            /*
-            // Arg List
-            match inter_matches.get_one::<bool>("list") {
-                Some(_) => {
-                    println!("List");
-                    let _ = interfaces::index_interface();
-                }
-                _ => {
-                    println!("Error when displaying interfaces.");
-                }
-            }
-
-            // Arg Filter
-            match inter_matches.get_one::<String>("filter") {
-                Some(filter) => {
-                    println!("filter 2");
-                    interfaces::filter_interfaces(filter).unwrap();
-                }
-                _ => {
-                    println!("Error when displaying interfaces.");
-                }
-            }*/
         }
         // Command ping with subcommand --destination
         Some(("ping", ping_matches)) => match ping_matches.get_one::<String>("destination") {
