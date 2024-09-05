@@ -1,10 +1,7 @@
 use pnet::{
     self,
     packet::{
-        icmp::{
-            echo_request::{self, MutableEchoRequestPacket},
-            IcmpTypes,
-        },
+        icmp::{echo_request, IcmpTypes},
         icmpv6::Icmpv6Types,
         ip::IpNextHeaderProtocols,
         ipv4::{self, MutableIpv4Packet},
@@ -49,7 +46,8 @@ const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
     // Crear y configurar el paquete ICMP
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
-    let mut icmp = MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
+    let mut icmp =
+        pnet::packet::icmp::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
     create_packet_icmp(&mut icmp);
 
     // Calcular el checksum de Icmp
@@ -77,7 +75,44 @@ pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
 pub fn handle_packet_ipv6(destinantion: Ipv6Addr) -> Result<Vec<u8>, io::Error> {
     // Create packet
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
+    let mut icmp6 =
+        pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet)
+            .unwrap();
+    create_packet_icmp6(&mut icmp6);
+
+    // Create and configuration of the ipv6 packet
+    let mut ip6_packet: [u8; TOTAL_LENGTH_SIZE_IPV6] = [0; TOTAL_LENGTH_SIZE_IPV6];
+    let mut ipv6 = MutableIpv6Packet::new(&mut ip6_packet).unwrap();
+    ipv6_create_packet(&mut ipv6, destinantion);
+
+    ipv6.set_payload(icmp6.packet());
+
+    Ok(ipv6.packet().to_vec())
 }
+
+/*
+    +-----------------------------------------+
+    /            Headers IPV4                 /
+    +-----------------------------------------+
+    / Version             /                   /
+    +-----------------------------------------+
+    / Header Lengtg       /                   /
+    +-----------------------------------------+
+    / Identification      /                   /
+    +-----------------------------------------+
+    / Flags               /                   /
+    +-----------------------------------------+
+    / Fragment offset     /                   /
+    +-----------------------------------------+
+    / Time to Live ttl    /                   /
+    +-----------------------------------------+
+    / Next Level Protocol /                   /
+    +-----------------------------------------+
+    / Checksum            /                   /
+    +-----------------------------------------+
+    / Destination         /                   /
+    +-----------------------------------------+
+*/
 
 #[allow(dead_code)]
 pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4Addr) {
@@ -94,14 +129,43 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
     ipv4_packet.set_destination(destination);
 }
 
+/*
+    +-----------------------------------------+
+    /            Headers IPV6                 /
+    +-----------------------------------------+
+    / Version             /                   /
+    +-----------------------------------------+
+    / Next Header         /                   /
+    +-----------------------------------------+
+    / Destinantion        /                   /
+    +-----------------------------------------+
+*/
+
 #[allow(dead_code)]
 pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destinantion: Ipv6Addr) {
     ipv6_packet.set_version(6);
     ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
     ipv6_packet.set_destination(destinantion);
 }
+
+/*
+    +-----------------------------------------+
+    /    Headers Echo Request ICMP4/ICMP6     /
+    +-----------------------------------------+
+    / Icmp Type           /                   /
+    +-----------------------------------------+
+    / Icmp Code           /                   /
+    +-----------------------------------------+
+    / Identifier          /                   /
+    +-----------------------------------------+
+    / Sequence Number     /                   /
+    +-----------------------------------------+
+*/
+
 #[allow(dead_code)]
-fn create_packet_icmp(echo_packet: &mut MutableEchoRequestPacket) {
+fn create_packet_icmp(
+    echo_packet: &mut pnet::packet::icmp::echo_request::MutableEchoRequestPacket,
+) {
     echo_packet.set_icmp_type(IcmpTypes::EchoRequest);
     echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
     echo_packet.set_identifier(1);
