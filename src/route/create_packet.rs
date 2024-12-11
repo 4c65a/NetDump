@@ -15,6 +15,8 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
 };
 
+use crate::route::config::Handle;
+
 /*
 
     IPv4(icmp4):
@@ -34,18 +36,27 @@ use std::{
 
 */
 
-const PAYLOAD_ICMP: usize = 56;
-const ICMP_SIZE: usize = 8;
-const IPV4_SIZE: usize = 20;
-const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
+// const PAYLOAD_ICMP: usize = 56;
+// const ICMP_SIZE: usize = 8;
+// const IPV4_SIZE: usize = 20;
+// const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
-const IPV6_SIZE: usize = 40;
-const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
+// const IPV6_SIZE: usize = 40;
+// const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
+
 
 #[allow(dead_code)]
-pub fn handle_packet(destination: Ipv4Addr) -> Result<Vec<u8>, io::Error> {
+pub fn handle_packet(
+    destination: Ipv4Addr,
+    parameters: &Handle,
+    ttl: u8,
+    payload_icmp: usize,
+    icmp_size: usize,
+    ipv4_size: usize,
+) -> Result<Vec<u8>, io::Error> {
+    let mut config: Handle = Default::default();
     // Crear y configurar el paquete ICMP
-    let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
+    let mut icmp_packet: [u8; ] = [0; ICMP_SIZE];
     let mut icmp =
         pnet::packet::icmp::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
     create_packet_icmp(&mut icmp);
