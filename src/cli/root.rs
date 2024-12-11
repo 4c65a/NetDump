@@ -49,9 +49,9 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                 .arg(
                     Arg::new("destination")
                         .short('d')
+                        .required(true)
                         .long("destination")
                         .value_name("DESTINATION")
-                        .required(true)
                         .action(ArgAction::Set)
                         .help("Address server."),
                 )
@@ -61,6 +61,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("TTL <number>")
                         .long("ttl")
+                        .action(ArgAction::Set)
                         .help("Define time to live"),
                 )
                 .arg(
@@ -69,6 +70,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("MIN-SEND <number>")
                         .long("min-send")
+                        .action(ArgAction::Set)
                         .help("Time for each packet to be sent <seconds>."),
                 )
                 .arg(
@@ -77,6 +79,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("COUNT <number>")
                         .long("count")
+                        .action(ArgAction::Set)
                         .help("Stop after <count> replies"),
                 )
                 .arg(
@@ -85,6 +88,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("DESTINATION IPV6")
                         .long("ipv6")
+                        .action(ArgAction::Set)
                         .help("Send packet icmp6 to ipv6"),
                 )
                 .arg(Arg::new("save").short('o').long("save").help("Save result"))
@@ -94,6 +98,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("ICMP SIZE <SIZE BYTES>")
                         .long("icmp")
+                        .action(ArgAction::Set)
                         .help("Icmp size packet to send"),
                 )
                 .arg(
@@ -102,6 +107,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("ICMP <SIZE BYTES>")
                         .long("icmp6")
+                        .action(ArgAction::Set)
                         .help("Icmp6 size packet to send"),
                 ),
         )
