@@ -42,7 +42,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .action(ArgAction::Set),
                 ),
         )
-        // ping --address --min-send --count(packet) --ip6 --save
+        // ping --address --min-send --count(packet) --ip6 --save --IcmpS --Icmp6S --ttl
         .subcommand(
             Command::new("ping")
                 .about("Ping sends an Internet Control Message Protocol (ICMP).")
@@ -51,10 +51,59 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .short('d')
                         .long("destination")
                         .value_name("DESTINATION")
+                        .required(true)
                         .action(ArgAction::Set)
                         .help("Address server."),
-                ), //.arg(Arg::new("min-send").short('m').long("min-send").help(""))
-                   //.arg(Arg::new("ip6").short('6').long("ip6").help("")),
+                )
+                .arg(
+                    Arg::new("ttl")
+                        .short('t')
+                        .required(false)
+                        .value_name("TTL <number>")
+                        .long("ttl")
+                        .help("Define time to live"),
+                )
+                .arg(
+                    Arg::new("min-send")
+                        .short('m')
+                        .required(false)
+                        .value_name("MIN-SEND <number>")
+                        .long("min-send")
+                        .help("Time for each packet to be sent <seconds>."),
+                )
+                .arg(
+                    Arg::new("count")
+                        .short('c')
+                        .required(false)
+                        .value_name("COUNT <number>")
+                        .long("count")
+                        .help("Stop after <count> replies"),
+                )
+                .arg(
+                    Arg::new("ipv6")
+                        .short('6')
+                        .required(false)
+                        .value_name("DESTINATION IPV6")
+                        .long("ipv6")
+                        .help("Send packet icmp6 to ipv6"),
+                )
+                .arg(Arg::new("save").short('o').long("save").help("Save result"))
+                .arg(
+                    Arg::new("icmpS")
+                        .short('s')
+                        .required(false)
+                        .value_name("ICMP SIZE <SIZE BYTES>")
+                        .long("icmp")
+                        .help("Icmp size packet to send"),
+                )
+                .arg(
+                    Arg::new("icmp6S")
+                        .short('S')
+                        .required(false)
+                        .value_name("ICMP <SIZE BYTES>")
+                        .long("icmp6")
+                        .help("Icmp6 size packet to send"),
+                ),
         )
         .get_matches();
     Ok(matches)
