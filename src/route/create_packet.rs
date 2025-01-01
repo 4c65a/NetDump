@@ -15,7 +15,6 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
 };
 
-use crate::route::config::Handle;
 
 /*
 
@@ -36,27 +35,24 @@ use crate::route::config::Handle;
 
 */
 
-// const PAYLOAD_ICMP: usize = 56;
-// const ICMP_SIZE: usize = 8;
-// const IPV4_SIZE: usize = 20;
-// const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
+const PAYLOAD_ICMP: usize = 56;
+const ICMP_SIZE: usize = 8;
+const IPV4_SIZE: usize = 20;
+const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
-// const IPV6_SIZE: usize = 40;
-// const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
+const IPV6_SIZE: usize = 40;
+const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
 
-#[allow(dead_code)]
+
 pub fn handle_packet(
     destination: Ipv4Addr,
-    parameters: &Handle,
     ttl: u8,
-    payload_icmp: usize,
-    icmp_size: usize,
-    ipv4_size: usize,
+   
 ) -> Result<Vec<u8>, io::Error> {
-    let mut config: Handle = Default::default();
+
     // Crear y configurar el paquete ICMP
-    let mut icmp_packet: [u8; ] = [0; ICMP_SIZE];
+    let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
     let mut icmp =
         pnet::packet::icmp::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
     create_packet_icmp(&mut icmp);
@@ -68,7 +64,7 @@ pub fn handle_packet(
     // Crear y configurar el paquete IPv4
     let mut ip_packet: [u8; TOTAL_LENGTH_SIZE] = [0; TOTAL_LENGTH_SIZE];
     let mut ipv4 = MutableIpv4Packet::new(&mut ip_packet).unwrap();
-    ipv4_create_packet(&mut ipv4, destination);
+    ipv4_create_packet(&mut ipv4, destination,ttl);
 
     //Establecer el tamaño total
     ipv4.set_total_length((TOTAL_LENGTH_SIZE + icmp.packet().len()) as u16);
@@ -82,7 +78,7 @@ pub fn handle_packet(
     Ok(ipv4.packet().to_vec())
 }
 
-#[allow(dead_code)]
+
 pub fn handle_packet_ipv6(destinantion: Ipv6Addr) -> Result<Vec<u8>, io::Error> {
     // Create packet
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
@@ -125,14 +121,13 @@ pub fn handle_packet_ipv6(destinantion: Ipv6Addr) -> Result<Vec<u8>, io::Error> 
     +-----------------------------------------+
 */
 
-#[allow(dead_code)]
-pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4Addr) {
+pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4Addr, ttl: u8) {
     ipv4_packet.set_version(4);
     ipv4_packet.set_header_length((IPV4_SIZE / 4) as u8);
     ipv4_packet.set_identification(257u16.to_be());
     ipv4_packet.set_flags(ipv4::Ipv4Flags::DontFragment);
     ipv4_packet.set_fragment_offset(0);
-    ipv4_packet.set_ttl(64);
+    ipv4_packet.set_ttl(ttl);
     ipv4_packet.set_next_level_protocol(IpNextHeaderProtocols::Icmp);
 
     let checksum = util::checksum(ipv4_packet.packet(), 1);
@@ -152,7 +147,7 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
     +-----------------------------------------+
 */
 
-#[allow(dead_code)]
+
 pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destinantion: Ipv6Addr) {
     ipv6_packet.set_version(6);
     ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
@@ -173,7 +168,7 @@ pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destinantion: Ipv
     +-----------------------------------------+
 */
 
-#[allow(dead_code)]
+
 fn create_packet_icmp(
     echo_packet: &mut pnet::packet::icmp::echo_request::MutableEchoRequestPacket,
 ) {
@@ -183,7 +178,7 @@ fn create_packet_icmp(
     echo_packet.set_sequence_number(1);
 }
 
-#[allow(dead_code)]
+
 fn create_packet_icmp6(
     echo_packet: &mut pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket,
 ) {

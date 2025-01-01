@@ -3,7 +3,7 @@ use capture::{
     interfaces::{self},
 };
 use cli::root::cmd;
-use route::ping::ping;
+use route::ping::*;
 
 mod capture;
 mod cli;
@@ -11,10 +11,10 @@ mod protocol;
 mod route;
 mod speed;
 
-
 #[tokio::main]
 async fn main() {
     let matches = cmd().unwrap();
+
     match matches.subcommand() {
         // Command cap with subcommand --interface
         Some(("cap", cap_matches)) => match cap_matches.get_one::<String>("interface") {
@@ -25,6 +25,7 @@ async fn main() {
                 println!("Error capturing packets.");
             }
         },
+
         // Command interface with two subcommand --list | --filter
         Some(("interface", inter_matches)) => {
             if let Some(filter) = inter_matches.get_one::<String>("filter") {
@@ -35,15 +36,46 @@ async fn main() {
                 println!("No commands found.");
             }
         }
+
         // Command ping with subcommand --destination
-        Some(("ping", ping_matches)) => match ping_matches.get_one::<String>("destination") {
-            Some(destination) => {
-                ping(destination).await;
-            }
-            _ => {
-                println!("Error send ping.");
-            }
-        },
+        Some(("ping", ping_matches)) => {
+           
+            let destination = ping_matches
+                .get_one::<String>("destination")
+                .unwrap_or(&"127.0.0.1".to_string())
+                .clone();
+            let ttl = ping_matches
+                .get_one::<String>("ttl")
+                .unwrap_or(&"64".to_string())
+                .parse::<u8>()
+                .unwrap_or(64);
+            let min_send = ping_matches
+                .get_one::<String>("min_send")
+                .unwrap_or(&"1".to_string())
+                .parse::<u64>()
+                .unwrap_or(1);
+            let count = ping_matches
+                .get_one::<String>("count")
+                .unwrap_or(&"10".to_string())
+                .parse::<i32>()
+                .unwrap();
+           
+            let ipv6 = ping_matches
+                .get_one::<String>("ipv6")
+                .unwrap_or(&"::1".to_string())
+                .clone();
+
+            let ping = tokio::spawn(async move {
+                {
+                   
+                                      
+                }
+
+                tokio::task::yield_now().await;
+            });
+
+            let _ = tokio::join!(ping);
+        }
         _ => {
             println!("No commands found");
         }
