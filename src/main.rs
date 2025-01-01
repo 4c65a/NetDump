@@ -3,7 +3,7 @@ use capture::{
     interfaces::{self},
 };
 use cli::root::cmd;
-use route::ping::*;
+use route::ping::ping;
 
 mod capture;
 mod cli;
@@ -60,15 +60,14 @@ async fn main() {
                 .parse::<i32>()
                 .unwrap();
            
-            let ipv6 = ping_matches
+            let _ipv6 = ping_matches
                 .get_one::<String>("ipv6")
                 .unwrap_or(&"::1".to_string())
                 .clone();
 
             let ping = tokio::spawn(async move {
                 {
-                   
-                                      
+                     ping(&destination.as_str(),ttl,min_send,Some(count)).await;
                 }
 
                 tokio::task::yield_now().await;

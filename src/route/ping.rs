@@ -22,22 +22,23 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     thread,
     time::{Duration, Instant},
-    str::FromStr,
 };
 
 use super::create_packet::*;
 use tokio::net::lookup_host;
 
-
-async fn ping(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>){
-
-
-
+pub async fn ping(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
+    let ip: IpAddr = hostname.parse().expect("Error: Ip don't working");
+    match ip {
+        IpAddr::V4(ipv4) => {
+            ping_ipv4(&ipv4.to_string(), ttl, min_send, count).await;
+        }
+        IpAddr::V6(ipv6) => {
+            //let ipv6 = Ipv6Addr::from_str(hostname).expect("Failed to parse destination IP as IPv6");
+            ping_ipv6(ipv6, min_send, count).await;
+        }
+    };
 }
-
-
-
-
 
 async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
     let host_port = format!("{hostname}:0");
@@ -71,7 +72,6 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
 
     let mut sequence = 0;
 
-
     loop {
         let destination_ip = resolve_host(hostname)
             .await
@@ -95,7 +95,6 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
         let start_time = Instant::now();
 
         loop {
-
             match iter.next_with_timeout(Duration::from_secs(1)) {
                 Ok(Some((packet, _))) => {
                     let ipv4_packet =
@@ -146,28 +145,25 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
     }
 }
 
-
-async fn ping_ipv6(hostname: &str, min_send: u64, count: Option<i32>) {
+async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
     let transport_layer3 = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
 
     let (mut tx, mut rx) = match pnet::transport::transport_channel(4096, transport_layer3) {
         Ok((tx, rx)) => (tx, rx),
         Err(error) => panic!("ERROR TRANSPORT CHANNEL: {:?}", error),
     };
-    
-    let destination_ip6 = Ipv6Addr::from_str(hostname).expect("Failed to parse destination IP as IPv6");
 
-
+    //let destination_ip6 =
+    //    Ipv6Addr::from_str(hostname).expect("Failed to parse destination IP as IPv6");
 
     let mut sequence = 0;
 
-
     loop {
-    match handle_packet_ipv6(destination_ip6) {
+        match handle_packet_ipv6(hostname) {
             Ok(ipv6_packet) => {
                 if let Some(packet) = pnet::packet::ipv6::Ipv6Packet::new(&ipv6_packet) {
-                    match tx.send_to(packet, destination_ip6.into()) {
-                        Ok(_) => println!("------------------------------ Packet ipv6 {} sent to {} ------------------------------", sequence + 1, destination_ip6),
+                    match tx.send_to(packet,hostname.into()) {
+                        Ok(_) => println!("------------------------------ Packet ipv6 {} sent to {} ------------------------------", sequence + 1, hostname),
                         Err(error) => println!("Failed to send packet: {:?}", error),
                     }
                 } else {
@@ -181,11 +177,10 @@ async fn ping_ipv6(hostname: &str, min_send: u64, count: Option<i32>) {
         let start_time = Instant::now();
 
         loop {
-
             match iter.next_with_timeout(Duration::from_secs(1)) {
                 Ok(Some((packet, _))) => {
-                    let ipv6_packet =
-                        pnet::packet::ipv6::Ipv6Packet::new(packet.packet()).expect("Failed to parse IPv4 packet");
+                    let ipv6_packet = pnet::packet::ipv6::Ipv6Packet::new(packet.packet())
+                        .expect("Failed to parse IPv4 packet");
                     if let Some(icmp_packet) = IcmpPacket::new(ipv6_packet.payload()) {
                         let icmp_type = icmp_packet.get_icmp_type();
                         if icmp_type == IcmpTypes::EchoReply {
