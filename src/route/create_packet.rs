@@ -39,7 +39,7 @@ const ICMP_SIZE: usize = 8;
 const IPV4_SIZE: usize = 20;
 const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
-const IPV6_SIZE: usize = 20;
+const IPV6_SIZE: usize = 40;
 const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
 pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Error> {
@@ -58,7 +58,7 @@ pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Erro
     let mut ipv4 = MutableIpv4Packet::new(&mut ip_packet).unwrap();
     ipv4_create_packet(&mut ipv4, destination, ttl);
 
-    //Establecer el tamaño total
+    // Establecer el tamaño total
     ipv4.set_total_length((TOTAL_LENGTH_SIZE + icmp.packet().len()) as u16);
 
     // Establecer la carga útil del IPv4 con el paquete ICMP
@@ -83,12 +83,11 @@ pub fn handle_packet_ipv6(destinantion: Ipv6Addr) -> Result<Vec<u8>, io::Error> 
     let mut ipv6 = MutableIpv6Packet::new(&mut ip6_packet).unwrap();
     ipv6_create_packet(&mut ipv6, destinantion);
 
+    // Establecer el tamaño total
     ipv6.set_payload_length((TOTAL_LENGTH_SIZE_IPV6 + icmp6.packet().len()) as u16);
-    
+
     // Establecer la carga útil del IPv6 con el paquete ICMP
     ipv6.set_payload(icmp6.packet());
-
-  
 
     Ok(ipv6.packet().to_vec())
 }
@@ -143,10 +142,14 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
     +-----------------------------------------+
 */
 
-pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destinantion: Ipv6Addr) {
+pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destination: Ipv6Addr) {
     ipv6_packet.set_version(6);
+    ipv6_packet.set_destination(destination);
+    ipv6_packet.set_payload_length(ICMP_SIZE as u16);
     ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
-    ipv6_packet.set_destination(destinantion);
+    ipv6_packet.set_hop_limit(64);
+    ipv6_packet.set_traffic_class(0);
+    ipv6_packet.set_flow_label(0);
 }
 
 /*
@@ -170,8 +173,10 @@ fn create_packet_icmp(
     echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
     echo_packet.set_identifier(1);
     echo_packet.set_sequence_number(1);
-}
 
+    let checksum = util::checksum(echo_packet.packet(), 0);
+    echo_packet.set_checksum(checksum)
+}
 fn create_packet_icmp6(
     echo_packet: &mut pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket,
 ) {

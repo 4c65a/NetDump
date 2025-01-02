@@ -3,7 +3,7 @@ use capture::{
     interfaces::{self},
 };
 use cli::root::cmd;
-use route::ping::ping;
+use route::ping::*;
 
 mod capture;
 mod cli;
