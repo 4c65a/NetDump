@@ -14,14 +14,17 @@ use pnet::{
         icmpv6::{Icmpv6Packet, Icmpv6Types},
         ip::IpNextHeaderProtocols,
         ipv4::{self, Ipv4Packet},
-        ipv6::{Ipv6Packet},
+        ipv6::Ipv6Packet,
         Packet,
     },
-    transport::{icmp_packet_iter, TransportChannelType,icmpv6_packet_iter},
+    transport::{icmp_packet_iter, TransportChannelType},
 };
+
+use socket2::{Domain, Protocol, Socket, Type};
 use std::{
     io::{self, Error},
-    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    mem::MaybeUninit,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddrV6},
     thread,
     time::{Duration, Instant},
 };
@@ -29,20 +32,28 @@ use std::{
 use super::create_packet::*;
 use tokio::net::lookup_host;
 
-pub async fn ping(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
+pub async fn ping(
+    hostname: &str,
+    ttl: u8,
+    min_send: u64,
+    count: Option<i32>,
+) -> Result<(), std::io::Error> {
     let ip: IpAddr = hostname.parse().expect("Error: Ip don't working");
     match ip {
         IpAddr::V4(ipv4) => {
             ping_ipv4(&ipv4.to_string(), ttl, min_send, count).await;
         }
-        IpAddr::V6(ipv6) => { 
+        IpAddr::V6(ipv6) => {
             ping_ipv6(ipv6, min_send, count).await;
         }
     };
+    Err(Error::new(
+        io::ErrorKind::Other,
+        "No valid IP address found",
+    ))
 }
 
 async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
-
     let host_port = format!("{hostname}:0");
     let mut addresses = lookup_host(host_port).await?;
 
@@ -82,8 +93,11 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
         match handle_packet(destination_ip, ttl) {
             Ok(ipv4_packet) => {
                 if let Some(packet) = ipv4::Ipv4Packet::new(&ipv4_packet) {
+                  
                     match tx.send_to(packet, destination_ip.into()) {
-                        Ok(_) => println!("------------------------------ Packet ipv4 {} sent to {} ------------------------------", sequence + 1, destination_ip),
+                        Ok(_) => {
+                            println!("------------------------------ Packet ipv4 {} sent to {} ------------------------------", sequence + 1, destination_ip)
+                        }
                         Err(error) => println!("Failed to send packet ipv4: {:?}", error),
                     }
                 } else {
@@ -147,26 +161,37 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
     }
 }
 
+
+// Temporarily disabled: This function is currently not working.
 async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
-    let transport_layer3 =
-        TransportChannelType::Layer3(IpNextHeaderProtocols::Icmpv6); 
-    let (mut tx, mut rx) = match pnet::transport::transport_channel(4096, transport_layer3) {
-        Ok((tx, rx)) => (tx, rx),
-        Err(error) => panic!("ERROR TRANSPORT CHANNEL IPV6: {:?}", error),
+    let socket = Socket::new(Domain::IPV6, Type::RAW, Some(Protocol::ICMPV6))
+        .expect("Failed to create socket");
+
+    socket
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .expect("Failed to set read timeout");
+
+    let _sock6 = SocketAddrV6::new(hostname, 0, 0, 0);
+
+    //let sockaddr = SockAddr::from(SocketAddrV6::new(hostname, 0, 0, 0));
+
+    //let sockaddr = SockAddr::from(sock6);
+
+    let mut sequence = 0;
+    let mut buf: Vec<u8> = vec![0; 1024];
+    let mut recv_buf: &mut [MaybeUninit<u8>] = unsafe {
+        std::slice::from_raw_parts_mut(buf.as_mut_ptr() as *mut MaybeUninit<u8>, buf.len())
     };
 
-    //let destination_ip6 =
-    //    Ipv6Addr::from_str(hostname).expect("Failed to parse destination IP as IPv6");
-
-    let destination = hostname;
-    let mut sequence = 0;
-
     loop {
-        match handle_packet_ipv6(destination) {
+        // let sockaddr = SockAddr::from(SocketAddrV6::new(hostname, 0, 0, 0));
+        /*match handle_packet_ipv6(sock6) {
             Ok(ipv6_packet) => {
                 if let Some(packet) = Ipv6Packet::new(&ipv6_packet) {
-                    match tx.send_to(packet,destination.into()) {
-                        Ok(_) => println!("------------------------------ Packet ipv6 {} sent to {} ------------------------------", sequence + 1, destination),
+                    let sockaddr: SockAddr = sock6.into();
+
+                    match socket.send_to(&packet.packet(),&sockaddr) {
+                        Ok(_) => println!("------------------------------ Packet ipv6 {} sent to {:?} ------------------------------", sequence + 1, sockaddr),
                         Err(error) => println!("Failed to send packet ipv6: {:?}", error),
                     }
                 } else {
@@ -175,24 +200,26 @@ async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
             }
             Err(error) => println!("Failed to create ipv6_packet: {:?}", error),
         }
-
-        let mut iter = icmpv6_packet_iter(&mut rx);
+*/
         let start_time = Instant::now();
 
         loop {
-            match iter.next_with_timeout(Duration::from_secs(1)) {
-                Ok(Some((packet, _))) => {
-                    let ipv6_packet = Ipv6Packet::new(packet.packet())
-                        .expect("Failed to parse IPv6 packet");
+            match socket.recv_from(&mut recv_buf) {
+                Ok((packet_size, _)) => {
+                    let ipv6_packet =
+                        Ipv6Packet::new(&buf[..packet_size]).expect("Failed to parse IPv6 packet");
+
                     if let Some(icmp_packet) = Icmpv6Packet::new(ipv6_packet.payload()) {
                         let icmp6_type = icmp_packet.get_icmpv6_type();
+
                         if icmp6_type == Icmpv6Types::EchoReply {
                             let icmp_payload = ipv6_packet.payload();
                             let icmp_bytes = icmp_payload.len();
+                            println!("Received ICMP type: {:?}", icmp6_type);
 
                             println!(" ");
                             println!(
-                                "                  Bytes: {:?} | Destination: {:?} | TTL: {:?} |  Icmp_seq: {:?} | Time: {:?} ms",
+                                "                  Bytes: {:?} | Destination: {:?} | TTL: {:?} | Icmp_seq: {:?} | Time: {:?} ms",
                                 icmp_bytes,
                                 ipv6_packet.get_destination(),
                                 ipv6_packet.get_hop_limit(),
@@ -206,12 +233,9 @@ async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
                         eprintln!("Received a non-ICMP packet");
                     }
                 }
-                Ok(None) => {
-                    println!("Timeout waiting for ICMP echo reply");
-                    break;
-                }
-                Err(e) => {
-                    println!("An error occurred while waiting for ICMP echo reply: {}", e);
+                Err(error) => {
+                    println!("Temporarily disabled: This function is currently not working.");
+                    eprintln!("Error receiving packet: {:?}", error);
                     break;
                 }
             }
@@ -219,6 +243,7 @@ async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
 
         sequence += 1;
 
+        // Si se especificó un límite de cantidad de pings, salir cuando se alcance
         if let Some(max_count) = count {
             if sequence >= max_count {
                 println!("Count Packet: {}", max_count);
@@ -226,6 +251,7 @@ async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
             }
         }
 
+        // Dormir entre cada envío de ping
         thread::sleep(Duration::from_secs(min_send));
     }
 }

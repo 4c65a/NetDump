@@ -10,9 +10,11 @@ use pnet::{
     },
 };
 
+
+
 use std::{
     io,
-    net::{Ipv4Addr, Ipv6Addr},
+    net::{IpAddr, Ipv4Addr,  SocketAddr, SocketAddrV6},
 };
 
 /*
@@ -39,7 +41,9 @@ const ICMP_SIZE: usize = 8;
 const IPV4_SIZE: usize = 20;
 const TOTAL_LENGTH_SIZE: usize = IPV4_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
+#[allow(dead_code)]
 const IPV6_SIZE: usize = 40;
+#[allow(dead_code)]
 const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
 pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Error> {
@@ -70,25 +74,32 @@ pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Erro
     Ok(ipv4.packet().to_vec())
 }
 
-pub fn handle_packet_ipv6(destinantion: Ipv6Addr) -> Result<Vec<u8>, io::Error> {
-    // Create packet
+#[warn(dead_code)]
+pub fn _handle_packet_ipv6(destination: SocketAddrV6) -> Result<Vec<u8>, io::Error> {
+    // Crear paquete ICMPv6
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
     let mut icmp6 =
         pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet)
             .unwrap();
     create_packet_icmp6(&mut icmp6);
 
-    // Create and configuration of the ipv6 packet
+    // Crear y configurar el paquete IPv6
     let mut ip6_packet: [u8; TOTAL_LENGTH_SIZE_IPV6] = [0; TOTAL_LENGTH_SIZE_IPV6];
     let mut ipv6 = MutableIpv6Packet::new(&mut ip6_packet).unwrap();
-    ipv6_create_packet(&mut ipv6, destinantion);
+       
+     
+    ipv6_create_packet(&mut ipv6, destination);
+   
 
-    // Establecer el tamaño total
-    ipv6.set_payload_length((TOTAL_LENGTH_SIZE_IPV6 + icmp6.packet().len()) as u16);
+    //ipv6_create_packet(&mut ipv6, dest);
 
-    // Establecer la carga útil del IPv6 con el paquete ICMP
+    // Establecer la longitud de la carga útil en el paquete IPv6
+    ipv6.set_payload_length(icmp6.packet().len() as u16);
+
+    // Establecer la carga útil del IPv6 con el paquete ICMPv6
     ipv6.set_payload(icmp6.packet());
 
+    // Retornar el paquete IPv6 con ICMPv6
     Ok(ipv6.packet().to_vec())
 }
 
@@ -141,15 +152,20 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
     / Destinantion        /                   /
     +-----------------------------------------+
 */
-
-pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destination: Ipv6Addr) {
+#[allow(dead_code)]
+pub fn ipv6_create_packet(ipv6_packet: &mut MutableIpv6Packet, destination: SocketAddrV6) {
     ipv6_packet.set_version(6);
-    ipv6_packet.set_destination(destination);
-    ipv6_packet.set_payload_length(ICMP_SIZE as u16);
-    ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
-    ipv6_packet.set_hop_limit(64);
     ipv6_packet.set_traffic_class(0);
     ipv6_packet.set_flow_label(0);
+    let destination = SocketAddr::V6(destination).ip();
+    //let ipv6addr = IpAddr::V6(destination).to_canonical();
+
+    if let IpAddr::V6(ipv6) = destination{
+        ipv6_packet.set_destination(ipv6);
+    }
+ 
+    ipv6_packet.set_next_header(IpNextHeaderProtocols::Icmpv6);
+    ipv6_packet.set_hop_limit(64);
 }
 
 /*
@@ -177,6 +193,7 @@ fn create_packet_icmp(
     let checksum = util::checksum(echo_packet.packet(), 0);
     echo_packet.set_checksum(checksum)
 }
+#[allow(dead_code)]
 fn create_packet_icmp6(
     echo_packet: &mut pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket,
 ) {
@@ -184,4 +201,8 @@ fn create_packet_icmp6(
     echo_packet.set_icmpv6_code(pnet::packet::icmpv6::echo_request::Icmpv6Codes::NoCode);
     echo_packet.set_identifier(1);
     echo_packet.set_sequence_number(1);
+
+    // Calcular el checksum ICMPv6 (aunque pnet lo hace automáticamente, es útil verificarlo)
+    let checksum = util::checksum(echo_packet.packet(), 0);
+    echo_packet.set_checksum(checksum);
 }

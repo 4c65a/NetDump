@@ -1,4 +1,5 @@
 use capture::{
+    
     cap_packet::cap,
     interfaces::{self},
 };
@@ -39,11 +40,18 @@ async fn main() {
 
         // Command ping with subcommand --destination
         Some(("ping", ping_matches)) => {
-           
-            let destination = ping_matches
-                .get_one::<String>("destination")
-                .unwrap_or(&"127.0.0.1".to_string())
-                .clone();
+            let destination = if ping_matches.contains_id("ipv6") {
+                ping_matches
+                    .get_one::<String>("ipv6")
+                    .unwrap_or(&"::1".to_string()) // ::1 es la dirección local IPv6
+                    .clone()
+            } else {
+                ping_matches
+                    .get_one::<String>("destination")
+                    .unwrap_or(&"127.0.0.1".to_string()) // Dirección IPv4 predeterminada
+                    .clone()
+            };
+
             let ttl = ping_matches
                 .get_one::<String>("ttl")
                 .unwrap_or(&"64".to_string())
@@ -59,7 +67,7 @@ async fn main() {
                 .unwrap_or(&"10".to_string())
                 .parse::<i32>()
                 .unwrap();
-           
+
             let _ipv6 = ping_matches
                 .get_one::<String>("ipv6")
                 .unwrap_or(&"::1".to_string())
@@ -67,7 +75,7 @@ async fn main() {
 
             let ping = tokio::spawn(async move {
                 {
-                     ping(&destination.as_str(),ttl,min_send,Some(count)).await;
+                    ping(&destination.as_str(), ttl, min_send, Some(count)).await.unwrap();
                 }
 
                 tokio::task::yield_now().await;
