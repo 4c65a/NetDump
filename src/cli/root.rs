@@ -92,7 +92,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .value_name("DESTINATION IPV6")
                         .long("ipv6")
                         .action(ArgAction::Set)
-                        .help("Send packet icmp6 to ipv6"),
+                        .help("Send ICMPv6 packet to the specified IPv6 address (Note: IPv6 functionality is currently disabled and will be enabled in future versions"),
                 ),
         
         )

@@ -1259,6 +1259,7 @@ dependencies = [
  "log",
  "pnet",
  "rand",
+ "socket2",
  "tokio",
  "tokio-macros",
 ]
