@@ -16,21 +16,21 @@ Is a project with basic functions for network packet capture.
 ### Command
 
 
+
 ## Goals
 - [x] List Interface of your own system
 - [x] Packet Capture
 - [x] Ping
-- [ ] Traceroute
-- [ ] Wifi Speed 
+- [x] Traceroute
+- [x] Resolve Host
 - [x] Add clap command
 
 ## Goals 2
 # Ping and Tracerouter
-- [ ] Add stop after count replies like ping 
+- [x] Add stop after count replies like ping 
 - [ ] Add ICMP6(echo) and IPV6
-- [ ] Seconds between sending each packe
-- [ ] Know about that if the device is living and uses a file containing multiple IPs or hosts for verification
-  
+- [x] Seconds between sending each packet
+
 # Packet Capture 
 - [ ] Add new protocols 
   - [ ] Ethernet
