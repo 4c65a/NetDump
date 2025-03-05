@@ -3,14 +3,14 @@ use capture::{
     interfaces::{self},
 };
 use cli::root::cmd;
-use route::{ping::*, tracerouter::trace};
+use route::{ping::*, resolve_host, tracerouter::trace};
 
 
 mod capture;
 mod cli;
 mod protocol;
 mod route;
-mod speed;
+
 
 #[tokio::main]
 async fn main() {
@@ -100,6 +100,17 @@ async fn main() {
             if let Err(e) = trace_route.await {
                 eprintln!("Tracing task failed: {:?}", e);
             }
+        }
+        Some(("resolve", resolve_matches)) => {
+            let host = resolve_matches.get_one::<String>("host").unwrap().clone();
+            let resolve = resolve_host::resolve_host(&host).await;
+            
+            if let Ok(ip) = resolve{
+                println!("HOST: {:?} => IP: {:?}",host,ip);
+            }else if let Err(e) = resolve {
+                eprintln!("Resolve host failed: {:?}", e);
+            }
+
         }
         _ => {
             println!("No commands found");

@@ -107,6 +107,16 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(true)
                ),
         )
+        .subcommand(
+            Command::new("resolve")
+            .about("Resolve the IP of a host")
+            .arg(
+                Arg::new("host")
+                .short('d')
+                .value_name("HOST")
+                .help("Resolve the IP of a host")
+            ),
+        )
         .get_matches();
     Ok(matches)
 }
