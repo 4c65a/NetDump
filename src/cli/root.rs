@@ -93,8 +93,19 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("ipv6")
                         .action(ArgAction::Set)
                         .help("Send ICMPv6 packet to the specified IPv6 address (Note: IPv6 functionality is currently disabled and will be enabled in future versions"),
-                ),
-        
+                ), 
+        )
+          .subcommand(
+            Command::new("tracerouter")
+                .about("Performs a traceroute to the given IP address.")
+                .arg(
+                    Arg::new("trace")
+                        .short('r')
+                        .long("trace")
+                        .value_name("IP")
+                        .help("Add an IP address for the traceroute.")
+                        .required(true)
+               ),
         )
         .get_matches();
     Ok(matches)
