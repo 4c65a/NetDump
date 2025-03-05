@@ -24,13 +24,12 @@ use socket2::{Domain, Protocol, Socket, Type};
 use std::{
     io::{self, Error},
     mem::MaybeUninit,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddrV6},
+    net::{IpAddr, Ipv6Addr, SocketAddrV6},
     thread,
     time::{Duration, Instant},
 };
-
 use super::create_packet::*;
-use tokio::net::lookup_host;
+use super::resolve_host::*;
 
 pub async fn ping(
     hostname: &str,
@@ -53,27 +52,6 @@ pub async fn ping(
     ))
 }
 
-pub async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
-    let host_port = format!("{hostname}:0");
-    let mut addresses = lookup_host(host_port).await?;
-
-    if let Some(addr) = &addresses.next() {
-        match addr.ip() {
-            IpAddr::V4(ip) => return Ok(ip),
-            IpAddr::V6(_) => {
-                return Err(Error::new(
-                    io::ErrorKind::Other,
-                    "Resolved to an IPv6 address which is not supported",
-                ))
-            }
-        }
-    }
-
-    Err(Error::new(
-        io::ErrorKind::Other,
-        "No valid IP address found",
-    ))
-}
 
 async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
     let transport_layer3 = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
@@ -135,7 +113,7 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
                             println!(" ");
                         }
                         break;
-                        
+
                     } else {
                         eprintln!("Received a non-ICMP packet");
                     }

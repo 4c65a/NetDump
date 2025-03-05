@@ -2,8 +2,9 @@ use std::time::{Duration, Instant};
 use pnet::packet::icmp::IcmpPacket;
 use pnet::packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet, Packet};
 use pnet::transport::{icmp_packet_iter, transport_channel, TransportChannelType};
+
 use super::create_packet::*;
-use super::ping::resolve_host;
+use super::resolve_host::resolve_host;
 
 pub async fn trace(ip: &str) {
     let transport_layer = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
@@ -23,6 +24,7 @@ pub async fn trace(ip: &str) {
     let mut sequence: u16 = 0;
 
     println!("Tracing route to {} with a maximum of {} hops:", ip, max_hops);
+
 
     loop {
         let destination_ip = match resolve_host(ip).await {
