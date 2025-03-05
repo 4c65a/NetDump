@@ -1,10 +1,10 @@
 use capture::{
-    
     cap_packet::cap,
     interfaces::{self},
 };
 use cli::root::cmd;
-use route::ping::*;
+use route::{ping::*, tracerouter::trace};
+
 
 mod capture;
 mod cli;
@@ -68,20 +68,38 @@ async fn main() {
                 .parse::<i32>()
                 .unwrap();
 
-            let _ipv6 = ping_matches
+            /*let _ipv6 = ping_matches
                 .get_one::<String>("ipv6")
                 .unwrap_or(&"::1".to_string())
                 .clone();
+            */
 
             let ping = tokio::spawn(async move {
                 {
-                    ping(&destination.as_str(), ttl, min_send, Some(count)).await.unwrap();
+                    ping(&destination.as_str(), ttl, min_send, Some(count))
+                        .await
+                        .unwrap();
                 }
 
                 tokio::task::yield_now().await;
             });
 
             let _ = tokio::join!(ping);
+        }
+        Some(("tracerouter", trace_matches)) => {
+            let ip = trace_matches
+                .get_one::<String>("trace")
+                .unwrap_or(&"127.0.0.1".to_string())
+                .clone();
+
+            let trace_route = tokio::spawn(async move {
+                trace(&ip).await;
+            });
+            
+
+            if let Err(e) = trace_route.await {
+                eprintln!("Tracing task failed: {:?}", e);
+            }
         }
         _ => {
             println!("No commands found");

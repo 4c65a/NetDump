@@ -53,7 +53,7 @@ pub async fn ping(
     ))
 }
 
-async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
+pub async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
     let host_port = format!("{hostname}:0");
     let mut addresses = lookup_host(host_port).await?;
 
@@ -115,8 +115,10 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
                 Ok(Some((packet, _))) => {
                     let ipv4_packet =
                         Ipv4Packet::new(packet.packet()).expect("Failed to parse IPv4 packet");
+
                     if let Some(icmp_packet) = IcmpPacket::new(ipv4_packet.payload()) {
                         let icmp_type = icmp_packet.get_icmp_type();
+
                         if icmp_type == IcmpTypes::EchoReply {
                             let icmp_payload = ipv4_packet.payload();
                             let icmp_bytes = icmp_payload.len();
@@ -133,6 +135,7 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
                             println!(" ");
                         }
                         break;
+                        
                     } else {
                         eprintln!("Received a non-ICMP packet");
                     }

@@ -47,28 +47,56 @@ const IPV6_SIZE: usize = 40;
 const TOTAL_LENGTH_SIZE_IPV6: usize = IPV6_SIZE + ICMP_SIZE + PAYLOAD_ICMP;
 
 pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Error> {
-    // Crear y configurar el paquete ICMP
+  
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
     let mut icmp =
         pnet::packet::icmp::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
     create_packet_icmp(&mut icmp);
 
-    // Calcular el checksum de Icmp
     let icmp_checksum = util::checksum(icmp.packet(), 1);
     icmp.set_checksum(icmp_checksum);
 
-    // Crear y configurar el paquete IPv4
+
     let mut ip_packet: [u8; TOTAL_LENGTH_SIZE] = [0; TOTAL_LENGTH_SIZE];
     let mut ipv4 = MutableIpv4Packet::new(&mut ip_packet).unwrap();
     ipv4_create_packet(&mut ipv4, destination, ttl);
 
-    // Establecer el tamaño total
+
     ipv4.set_total_length((TOTAL_LENGTH_SIZE + icmp.packet().len()) as u16);
 
-    // Establecer la carga útil del IPv4 con el paquete ICMP
+
     ipv4.set_payload(icmp.packet());
 
-    // Calcular el checksum del IPv4
+
+    let ipv4_checksum = util::checksum(ipv4.packet(), 1);
+    ipv4.set_checksum(ipv4_checksum);
+    Ok(ipv4.packet().to_vec())
+}
+
+
+
+pub fn handle_packet_trace(destination: Ipv4Addr, ttl: u8,identifier: u16, sequence_number: u16) -> Result<Vec<u8>, io::Error> {
+  
+    let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
+    let mut icmp =
+        pnet::packet::icmp::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet).unwrap();
+    create_packet_icmp_trace(&mut icmp,identifier,sequence_number);
+
+    let icmp_checksum = util::checksum(icmp.packet(), 1);
+    icmp.set_checksum(icmp_checksum);
+
+
+    let mut ip_packet: [u8; TOTAL_LENGTH_SIZE] = [0; TOTAL_LENGTH_SIZE];
+    let mut ipv4 = MutableIpv4Packet::new(&mut ip_packet).unwrap();
+    ipv4_create_packet(&mut ipv4, destination, ttl);
+
+
+    ipv4.set_total_length((TOTAL_LENGTH_SIZE + icmp.packet().len()) as u16);
+
+
+    ipv4.set_payload(icmp.packet());
+
+
     let ipv4_checksum = util::checksum(ipv4.packet(), 1);
     ipv4.set_checksum(ipv4_checksum);
     Ok(ipv4.packet().to_vec())
@@ -76,14 +104,14 @@ pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Erro
 
 #[warn(dead_code)]
 pub fn _handle_packet_ipv6(destination: SocketAddrV6) -> Result<Vec<u8>, io::Error> {
-    // Crear paquete ICMPv6
+
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
     let mut icmp6 =
         pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket::new(&mut icmp_packet)
             .unwrap();
     create_packet_icmp6(&mut icmp6);
 
-    // Crear y configurar el paquete IPv6
+
     let mut ip6_packet: [u8; TOTAL_LENGTH_SIZE_IPV6] = [0; TOTAL_LENGTH_SIZE_IPV6];
     let mut ipv6 = MutableIpv6Packet::new(&mut ip6_packet).unwrap();
        
@@ -91,15 +119,13 @@ pub fn _handle_packet_ipv6(destination: SocketAddrV6) -> Result<Vec<u8>, io::Err
     ipv6_create_packet(&mut ipv6, destination);
    
 
-    //ipv6_create_packet(&mut ipv6, dest);
 
-    // Establecer la longitud de la carga útil en el paquete IPv6
     ipv6.set_payload_length(icmp6.packet().len() as u16);
 
-    // Establecer la carga útil del IPv6 con el paquete ICMPv6
+
     ipv6.set_payload(icmp6.packet());
 
-    // Retornar el paquete IPv6 con ICMPv6
+
     Ok(ipv6.packet().to_vec())
 }
 
@@ -187,12 +213,28 @@ fn create_packet_icmp(
 ) {
     echo_packet.set_icmp_type(IcmpTypes::EchoRequest);
     echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
+
     echo_packet.set_identifier(1);
     echo_packet.set_sequence_number(1);
 
     let checksum = util::checksum(echo_packet.packet(), 0);
     echo_packet.set_checksum(checksum)
 }
+
+fn create_packet_icmp_trace(
+    echo_packet: &mut pnet::packet::icmp::echo_request::MutableEchoRequestPacket,
+    identifier: u16,
+    sequence_number: u16,
+) {
+    echo_packet.set_icmp_type(IcmpTypes::EchoRequest);
+    echo_packet.set_icmp_code(echo_request::IcmpCodes::NoCode);
+    echo_packet.set_identifier(identifier);
+    echo_packet.set_sequence_number(sequence_number);
+
+    let checksum = util::checksum(echo_packet.packet(), 0);
+    echo_packet.set_checksum(checksum);
+}
+
 #[allow(dead_code)]
 fn create_packet_icmp6(
     echo_packet: &mut pnet::packet::icmpv6::echo_request::MutableEchoRequestPacket,
@@ -201,8 +243,7 @@ fn create_packet_icmp6(
     echo_packet.set_icmpv6_code(pnet::packet::icmpv6::echo_request::Icmpv6Codes::NoCode);
     echo_packet.set_identifier(1);
     echo_packet.set_sequence_number(1);
-
-    // Calcular el checksum ICMPv6 (aunque pnet lo hace automáticamente, es útil verificarlo)
+ 
     let checksum = util::checksum(echo_packet.packet(), 0);
     echo_packet.set_checksum(checksum);
 }
