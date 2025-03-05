@@ -4,6 +4,7 @@ use pnet::packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet,
 use pnet::transport::{icmp_packet_iter, transport_channel, TransportChannelType};
 use super::create_packet::*;
 use super::ping::resolve_host;
+
 pub async fn trace(ip: &str) {
     let transport_layer = TransportChannelType::Layer3(IpNextHeaderProtocols::Icmp);
 
