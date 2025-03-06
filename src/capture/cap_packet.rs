@@ -5,8 +5,7 @@ use pnet::{
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
 
-//Change name file network_interface.rs to packet_capture.rs
-#[allow(dead_code)]
+
 pub fn cap(int_name: &str) {
     let interface = interfaces();
     // let int_name_str = int_name.to_string();
