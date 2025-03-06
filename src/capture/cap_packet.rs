@@ -5,10 +5,9 @@ use pnet::{
     packet::ethernet::{EtherTypes, EthernetPacket},
 };
 
-
 pub fn cap(int_name: &str) {
     let interface = interfaces();
-    // let int_name_str = int_name.to_string();
+
     let inter = interface
         .into_iter()
         .find(|inters: &NetworkInterface| inters.name == int_name)
