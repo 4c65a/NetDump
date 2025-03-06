@@ -93,7 +93,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("ipv6")
                         .action(ArgAction::Set)
                         .help("Send ICMPv6 packet to the specified IPv6 address (Note: IPv6 functionality is currently disabled and will be enabled in future versions"),
-                ), 
+                )
         )
           .subcommand(
             Command::new("tracerouter")

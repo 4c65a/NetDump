@@ -1,7 +1,7 @@
-use std::time::{Duration, Instant};
 use pnet::packet::icmp::IcmpPacket;
 use pnet::packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet, Packet};
 use pnet::transport::{icmp_packet_iter, transport_channel, TransportChannelType};
+use std::time::{Duration, Instant};
 
 use super::create_packet::*;
 use super::resolve_host::resolve_host;
@@ -23,8 +23,10 @@ pub async fn trace(ip: &str) {
     let identifier: u16 = 1;
     let mut sequence: u16 = 0;
 
-    println!("Tracing route to {} with a maximum of {} hops:", ip, max_hops);
-
+    println!(
+        "Tracing route to {} with a maximum of {} hops:",
+        ip, max_hops
+    );
 
     loop {
         let destination_ip = match resolve_host(ip).await {
@@ -92,10 +94,18 @@ pub async fn trace(ip: &str) {
                             }
                         }
                     } else {
-                        println!("{:>3}. Failed to parse ICMP packet, raw bytes: {:?}", ttl, ipv4_packet.payload());
+                        println!(
+                            "{:>3}. Failed to parse ICMP packet, raw bytes: {:?}",
+                            ttl,
+                            ipv4_packet.payload()
+                        );
                     }
                 } else {
-                    println!("{:>3}. Failed to parse IPv4 packet, raw bytes: {:?}", ttl, packet.packet());
+                    println!(
+                        "{:>3}. Failed to parse IPv4 packet, raw bytes: {:?}",
+                        ttl,
+                        packet.packet()
+                    );
                 }
             }
             Ok(None) => {

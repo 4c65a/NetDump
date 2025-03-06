@@ -5,7 +5,6 @@ use std::{
 
 use tokio::net::lookup_host;
 
-
 pub async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
     let host_port = format!("{hostname}:0");
     let mut addresses = lookup_host(host_port).await?;
