@@ -137,8 +137,9 @@ async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {
     }
 }
 
+
 // Temporarily disabled: This function is currently not working.
-// , min_send: u64, count: Option<i32>
+// I can't test the IPv6 ping because I believe my ISP has not configured IPv6 or doesn't support it.
 async fn ping_ipv6(hostname: Ipv6Addr, min_send: u64, count: Option<i32>) {
     
     
