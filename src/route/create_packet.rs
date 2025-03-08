@@ -64,7 +64,6 @@ pub fn handle_packet(destination: Ipv4Addr, ttl: u8) -> Result<Vec<u8>, io::Erro
     Ok(ipv4.packet().to_vec())
 }
 
-
 /*
     +-----------------------------------------+
     /            Headers IPV4                 /
@@ -103,7 +102,6 @@ pub fn ipv4_create_packet(ipv4_packet: &mut MutableIpv4Packet, destination: Ipv4
     ipv4_packet.set_destination(destination);
 }
 
-
 /*
     +-----------------------------------------+
     /    Headers Echo Request ICMP4/ICMP6     /
@@ -131,7 +129,6 @@ fn create_packet_icmp(
     echo_packet.set_checksum(checksum)
 }
 
-
 pub fn handle_packet_ipv6(destination: Ipv6Addr) -> Result<Vec<u8>, io::Error> {
     let mut icmp_packet: [u8; ICMP_SIZE] = [0; ICMP_SIZE];
     let mut icmp6 =
@@ -141,7 +138,6 @@ pub fn handle_packet_ipv6(destination: Ipv6Addr) -> Result<Vec<u8>, io::Error> {
 
     let mut ip6_packet: [u8; TOTAL_LENGTH_SIZE_IPV6] = [0; TOTAL_LENGTH_SIZE_IPV6];
     let mut ipv6 = MutableIpv6Packet::new(&mut ip6_packet).unwrap();
-
 
     ipv6_create_packet(&mut ipv6, destination);
 
@@ -188,7 +184,6 @@ fn create_packet_icmp6(
     echo_packet.set_checksum(checksum);
 }
 
-
 pub fn handle_packet_trace(
     destination: Ipv4Addr,
     ttl: u8,
@@ -229,4 +224,3 @@ fn create_packet_icmp_trace(
     let checksum = util::checksum(echo_packet.packet(), 0);
     echo_packet.set_checksum(checksum);
 }
-
