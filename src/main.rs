@@ -38,52 +38,54 @@ async fn main() {
 
         // Command ping with subcommand --destination
         Some(("ping", ping_matches)) => {
+
             let destination = if ping_matches.contains_id("ipv6") {
+
                 ping_matches
                     .get_one::<String>("ipv6")
-                    .unwrap_or(&"::1".to_string()) // ::1 es la dirección local IPv6
+                    .unwrap_or(&"::1".to_string())
                     .clone()
             } else {
+     
                 ping_matches
                     .get_one::<String>("destination")
-                    .unwrap_or(&"127.0.0.1".to_string()) // Dirección IPv4 predeterminada
+                    .unwrap_or(&"127.0.0.1".to_string())
                     .clone()
             };
+        
 
             let ttl = ping_matches
                 .get_one::<String>("ttl")
                 .unwrap_or(&"64".to_string())
                 .parse::<u8>()
                 .unwrap_or(64);
+        
             let min_send = ping_matches
                 .get_one::<String>("min_send")
                 .unwrap_or(&"1".to_string())
                 .parse::<u64>()
                 .unwrap_or(1);
+        
             let count = ping_matches
                 .get_one::<String>("count")
                 .unwrap_or(&"10".to_string())
                 .parse::<i32>()
                 .unwrap();
+        
 
-            /*let _ipv6 = ping_matches
-                .get_one::<String>("ipv6")
-                .unwrap_or(&"::1".to_string())
-                .clone();
-            */
-
-            let ping = tokio::spawn(async move {
-                {
-                    ping(&destination.as_str(), ttl, min_send, Some(count))
-                        .await
-                        .unwrap();
+            let ping_task = tokio::spawn(async move {
+           
+                if let Err(e) = ping(&destination.as_str(), ttl, min_send, Some(count)).await {
+                    eprintln!("Error executing ping: {:?}", e);
                 }
-
+    
                 tokio::task::yield_now().await;
             });
+        
 
-            let _ = tokio::join!(ping);
+            let _ = tokio::join!(ping_task);
         }
+        
         Some(("tracerouter", trace_matches)) => {
             let ip = trace_matches
                 .get_one::<String>("trace")
