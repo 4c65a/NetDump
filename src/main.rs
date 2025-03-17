@@ -15,7 +15,7 @@ async fn main() {
     let matches = cmd().unwrap();
 
     match matches.subcommand() {
-        // Command cap with subcommand --interface
+        // Command cap with subcommand --interface | --filter
         Some(("cap", cap_matches)) => {
 
             let interface = cap_matches
@@ -42,7 +42,7 @@ async fn main() {
             }
         }
 
-        // Command ping with subcommand --destination
+        // Command ping with subcommand --destination | --ttl | --count | --min-send
         Some(("ping", ping_matches)) => {
             let destination = if ping_matches.contains_id("ipv6") {
                 ping_matches
@@ -85,6 +85,7 @@ async fn main() {
             let _ = tokio::join!(ping_task);
         }
 
+        // Command tracerouter --trace
         Some(("tracerouter", trace_matches)) => {
             let ip = trace_matches
                 .get_one::<String>("trace")
@@ -99,6 +100,7 @@ async fn main() {
                 eprintln!("Tracing task failed: {:?}", e);
             }
         }
+        // Command resolve 
         Some(("resolve", resolve_matches)) => {
             let host = resolve_matches.get_one::<String>("host").unwrap().clone();
             let resolve = resolve_host::resolve_host(&host).await;
