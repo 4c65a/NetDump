@@ -1,28 +1,31 @@
 use crate::protocol::ip::{ipv4_handler, ipv6_handler};
 use core::panic;
-use pnet::{
-    datalink::{self, interfaces, Channel::Ethernet, NetworkInterface},
-    packet::ethernet::{EtherTypes, EthernetPacket},
-};
+use pcap::{Capture, Device};
+use pnet::
+    packet::ethernet::{EtherTypes, EthernetPacket}
+;
 
-pub fn cap(int_name: &str) {
-    let interface = interfaces();
+pub fn cap(int_name: &str,filter: Option<String>) {
+    let interfaces =  Device::list().expect("No se pudieron listar las interfaces");
 
-    let inter = interface
-        .into_iter()
-        .find(|inters: &NetworkInterface| inters.name == int_name)
-        .expect("Failed to get interface");
+    let inter = interfaces
+    .into_iter()
+    .find(|d| d.name == int_name)
+    .expect("No se encontró la interfaz especificada");
 
-    let (_tx, mut rx) = match datalink::channel(&inter, Default::default()) {
-        Ok(Ethernet(tx, rx)) => (tx, rx),
-        Ok(_) => panic!("Unhandled"),
-        Err(e) => panic!("Failed to channel {e}"),
-    };
     println!("Listening on interface {}", int_name);
+
+    let mut cap = Capture::from_device(inter.name.as_str()).unwrap().immediate_mode(true).promisc(true).snaplen(65535).open().unwrap();
+    
+    if let Some(filter_string) = filter {
+        cap.filter(&filter_string, true).expect("Error al aplicar el filtro BPF");
+    }
+
+    
     loop {
-        match rx.next() {
+        match cap.next_packet() {
             Ok(packets) => {
-                let packets = EthernetPacket::new(packets).unwrap();
+                let packets = EthernetPacket::new(&packets).unwrap();
                 match packets.get_ethertype() {
                     EtherTypes::Ipv4 => ipv4_handler(&packets),
                     EtherTypes::Ipv6 => ipv6_handler(&packets),

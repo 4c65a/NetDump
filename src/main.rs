@@ -16,14 +16,20 @@ async fn main() {
 
     match matches.subcommand() {
         // Command cap with subcommand --interface
-        Some(("cap", cap_matches)) => match cap_matches.get_one::<String>("interface") {
-            Some(interface) => {
-                cap(interface);
-            }
-            _ => {
-                println!("Error capturing packets.");
-            }
-        },
+        Some(("cap", cap_matches)) => {
+
+            let interface = cap_matches
+                .get_one::<String>("interface")
+                .expect("Interface required");
+
+            let filter = cap_matches
+                .get_one::<String>("filter").map(|f| f.clone());
+
+            cap(interface, filter);
+
+
+
+        }
 
         // Command interface with two subcommand --list | --filter
         Some(("interface", inter_matches)) => {

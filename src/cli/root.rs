@@ -18,7 +18,18 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("interface")
                         .value_name("INTERFACE")
                         .action(ArgAction::Set)
-                        .help("Add interface type to capture packets."),
+                        .required(true)
+                        .help("Specify the network interface to capture packets from."),
+                )
+                .arg(
+                    Arg::new("filter")
+                        .short('f')
+                        .long("filter")
+                        .value_name("FILTER")
+                        .action(ArgAction::Set)
+                        .required(false)
+                        .help("Apply a BPF filter ('icmp', 'tcp', 'udp', 'tcp port 80', 'host 192.168.1.1'). Use quotes for multi-word filters ('icmp or tcp or udp').")
+
                 ),
         )
         // Interface --filter(type interface) --list(interface) --ip(ip private or public)
