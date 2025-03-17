@@ -52,7 +52,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                 )
                 .arg(
                     Arg::new("filter")
-                        .short('t')
+                        .short('f')
                         .long("filter")
                         .value_name("FILTER")
                         .help("Get the list of interfaces on your system by filtering by name.")
