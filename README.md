@@ -209,3 +209,8 @@ NetDump is a command-line tool designed to facilitate network analysis and troub
   sudo netdump cap -i eth0 -f "not port 80"
 
   ```
+
+
+**Install the necessary dependencies**:
+
+``sudo apt install build-essential pkg-config libpcap-dev     ``
