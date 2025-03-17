@@ -8,7 +8,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
         .propagate_version(true)
         .arg_required_else_help(true)
         .color(clap::ColorChoice::Auto)
-        // cap --interface enp2s0|any --count 10 --cap-send --cap-receive --protocol --port --address 192.168.0.0.1 --save cap.pcap
+       
         .subcommand(
             Command::new("cap")
                 .about("Capture packets from your network.")
@@ -28,11 +28,12 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .value_name("FILTER")
                         .action(ArgAction::Set)
                         .required(false)
-                        .help("Apply a BPF filter ('icmp', 'tcp', 'udp', 'tcp port 80', 'host 192.168.1.1'). Use quotes for multi-word filters ('icmp or tcp or udp').")
+                        .help("Apply a BPF filter ('icmp', 'tcp', 'udp', 'tcp port 80', 'host 192.168.1.1').
+                         Use quotes for multi-word filters ('icmp or tcp or udp').")
 
                 ),
         )
-        // Interface --filter(type interface) --list(interface) --ip(ip private or public)
+        
         .subcommand(
             Command::new("interface")
                 .about("Get a list of available network interfaces.")
@@ -53,7 +54,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .action(ArgAction::Set),
                 ),
         )
-        // ping --address --min-send --count(packet) --ip6 --IcmpS --Icmp6S --ttl
+        
         .subcommand(
             Command::new("ping")
                 .about("Ping sends an Internet Control Message Protocol (ICMP).")

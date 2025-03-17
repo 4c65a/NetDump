@@ -1,4 +1,4 @@
-use crate::protocol::ip::{ipv4_handler, ipv6_handler};
+use crate::protocol::ip::ip_handler;
 use core::panic;
 use pcap::{Capture, Device};
 use pnet::
@@ -27,8 +27,8 @@ pub fn cap(int_name: &str,filter: Option<String>) {
             Ok(packets) => {
                 let packets = EthernetPacket::new(&packets).unwrap();
                 match packets.get_ethertype() {
-                    EtherTypes::Ipv4 => ipv4_handler(&packets),
-                    EtherTypes::Ipv6 => ipv6_handler(&packets),
+                    EtherTypes::Ipv4 => ip_handler(&packets),
+                    EtherTypes::Ipv6 => ip_handler(&packets),
 
                     _ => {
                         println!("Unhandled EtherType: {:?}", packets.get_ethertype());
