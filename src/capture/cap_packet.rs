@@ -6,19 +6,19 @@ use pnet::
 ;
 
 pub fn cap(int_name: &str,filter: Option<String>) {
-    let interfaces =  Device::list().expect("No se pudieron listar las interfaces");
+    let interfaces =  Device::list().expect("Interfaces could not be listed");
 
     let inter = interfaces
     .into_iter()
     .find(|d| d.name == int_name)
-    .expect("No se encontró la interfaz especificada");
+    .expect("The specified interface was not found");
 
     println!("Listening on interface {}", int_name);
 
     let mut cap = Capture::from_device(inter.name.as_str()).unwrap().immediate_mode(true).promisc(true).snaplen(65535).open().unwrap();
     
     if let Some(filter_string) = filter {
-        cap.filter(&filter_string, true).expect("Error al aplicar el filtro BPF");
+        cap.filter(&filter_string, true).expect("Error applying BPF filter");
     }
 
     
@@ -28,8 +28,7 @@ pub fn cap(int_name: &str,filter: Option<String>) {
                 let packets = EthernetPacket::new(&packets).unwrap();
                 match packets.get_ethertype() {
                     EtherTypes::Ipv4 => ip_handler(&packets),
-                    EtherTypes::Ipv6 => ip_handler(&packets),
-
+                    EtherTypes::Ipv6 => ip_handler(&packets), 
                     _ => {
                         println!("Unhandled EtherType: {:?}", packets.get_ethertype());
                     }

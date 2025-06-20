@@ -14,10 +14,7 @@ use pnet::{
 use super::create_packet::*;
 use super::resolve_host::*;
 use std::{
-    io::{self, Error},
-    net::{IpAddr, Ipv6Addr},
-    thread,
-    time::{Duration, Instant},
+   io,net::{IpAddr, Ipv6Addr}, thread, time::{Duration, Instant}
 };
 use termion::color;
 
@@ -26,7 +23,7 @@ pub async fn ping(
     ttl: u8,
     min_send: u64,
     count: Option<i32>,
-) -> Result<(), std::io::Error> {
+) -> Result<(),io::Error> {
     let ip: IpAddr = hostname.parse().expect("Error: Ip don't working");
     match ip {
         IpAddr::V4(ipv4) => {
@@ -36,10 +33,8 @@ pub async fn ping(
             ping_ipv6(ipv6, min_send, count).await;
         }
     };
-    Err(Error::new(
-        io::ErrorKind::Other,
-        "No valid IP address found",
-    ))
+
+    Ok(())
 }
 
 async fn ping_ipv4(hostname: &str, ttl: u8, min_send: u64, count: Option<i32>) {

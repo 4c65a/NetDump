@@ -1,4 +1,4 @@
-use clap::{self, error::Result, Arg, ArgAction, ArgMatches, Command, Error};
+use clap::{self, error::Result, value_parser, Arg, ArgAction, ArgMatches, Command, Error};
 
 pub fn cmd() -> Result<ArgMatches, Error> {
     let matches = Command::new("netdump")
@@ -105,7 +105,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("COUNT <number>")
                         .long("count")
-                        .action(ArgAction::Set)
+                        .value_parser(value_parser!(u32).range(1..))                                .action(ArgAction::Set)
                         .help("Stop after <count> replies"),
                 )
                 .arg(

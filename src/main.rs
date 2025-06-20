@@ -1,3 +1,5 @@
+use std::u32;
+
 use capture::{
     cap_packet::cap,
     interfaces::{self},
@@ -69,13 +71,11 @@ async fn main() {
                 .unwrap_or(1);
 
             let count = ping_matches
-                .get_one::<String>("count")
-                .unwrap_or(&"10".to_string())
-                .parse::<i32>()
-                .unwrap();
+                .get_one::<i32>("count").copied();
+               
 
             let ping_task = tokio::spawn(async move {
-                if let Err(e) = ping(destination.as_str(), ttl, min_send, Some(count)).await {
+                if let Err(e) = ping(destination.as_str(), ttl, min_send, count).await {
                     eprintln!("Error executing ping: {:?}", e);
                 }
 
