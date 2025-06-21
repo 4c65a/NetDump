@@ -9,7 +9,7 @@ use route::{ping::*, resolve_host, tracerouter::trace};
 
 mod capture;
 mod cli;
-mod protocol;
+mod protocols;
 mod route;
 
 #[tokio::main]
