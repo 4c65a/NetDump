@@ -1,4 +1,4 @@
-use crate::protocols::{arp::arp_handler, ip::ip_handler};
+use crate::protocols::{arp::arp_handler, ip::ip_handler, vlan::vlan_handler};
 use core::panic;
 use pcap::{Capture, Device};
 use pnet::
@@ -30,13 +30,13 @@ pub fn cap(int_name: &str,filter: Option<String>) {
                     EtherTypes::Ipv4 => ip_handler(&packets),
                     EtherTypes::Ipv6 => ip_handler(&packets),
                     EtherTypes::Arp => arp_handler(&packets),
+                    EtherTypes::Vlan => vlan_handler(&packets),
                     //EtherTypes::Rarp => ,
                     //EtherTypes::PppoeDiscovery => ,
                     //EtherTypes::PppoeSession => ,
                     //EtherTypes::Trill => ,
                     //EtherTypes::PBridge => ,
                     //EtherTypes::Cfm => ,
-                    //EtherTypes::Vlan => ,
                     //EtherTypes::QinQ => ,
                     //EtherTypes::WakeOnLan => ,
                     //EtherTypes::MplsMcast => ,

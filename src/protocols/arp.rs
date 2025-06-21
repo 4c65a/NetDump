@@ -23,11 +23,6 @@ pub fn arp_handler(ether: &EthernetPacket) {
     match ether.get_ethertype() {
         EtherTypes::Arp => {
             let packet = ArpPacket::new(ether.payload()).unwrap();
-            //let hardware_type = packet.get_hardware_type();
-            //let protocol = packet.get_protocol_type();
-            //let hw_addr_len = packet.get_hw_addr_len();
-            //let proto_addr_len = packet.get_proto_addr_len();
-            //let operation = packet.get_operation();
 
             let sender_mac = packet.get_sender_hw_addr();
             let sender_ip = packet.get_sender_proto_addr();

@@ -25,7 +25,7 @@ async fn main() {
                 .expect("Interface required");
 
             let filter = cap_matches
-                .get_one::<String>("filter").map(|f| f.clone());
+                .get_one::<String>("filter").cloned();
 
             cap(interface, filter);
 
