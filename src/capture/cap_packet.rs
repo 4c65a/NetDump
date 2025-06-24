@@ -1,27 +1,31 @@
 use crate::protocols::{arp::arp_handler, ip::ip_handler, vlan::vlan_handler};
 use core::panic;
 use pcap::{Capture, Device};
-use pnet::
-    packet::ethernet::{EtherTypes, EthernetPacket}
-;
+use pnet::packet::ethernet::{EtherTypes, EthernetPacket};
 
-pub fn cap(int_name: &str,filter: Option<String>) {
-    let interfaces =  Device::list().expect("Interfaces could not be listed");
+pub fn cap(int_name: &str, filter: Option<String>) {
+    let interfaces = Device::list().expect("Interfaces could not be listed");
 
     let inter = interfaces
-    .into_iter()
-    .find(|d| d.name == int_name)
-    .expect("The specified interface was not found");
+        .into_iter()
+        .find(|d| d.name == int_name)
+        .expect("The specified interface was not found");
 
     println!("Listening on interface {}", int_name);
 
-    let mut cap = Capture::from_device(inter.name.as_str()).unwrap().immediate_mode(true).promisc(true).snaplen(65535).open().unwrap();
-    
+    let mut cap = Capture::from_device(inter.name.as_str())
+        .unwrap()
+        .immediate_mode(true)
+        .promisc(true)
+        .snaplen(65535)
+        .open()
+        .unwrap();
+
     if let Some(filter_string) = filter {
-        cap.filter(&filter_string, true).expect("Error applying BPF filter");
+        cap.filter(&filter_string, true)
+            .expect("Error applying BPF filter");
     }
 
-    
     loop {
         match cap.next_packet() {
             Ok(packets) => {

@@ -1,13 +1,16 @@
 use pnet::{
-    self,
     packet::{
-        icmp::{echo_request, IcmpTypes},
+        Packet,
+        arp::{ArpHardwareTypes, ArpOperations, MutableArpPacket},
+        ethernet::{EtherTypes, MutableEthernetPacket},
+        icmp::{IcmpTypes, echo_request},
         icmpv6::Icmpv6Types,
         ip::IpNextHeaderProtocols,
         ipv4::{self, MutableIpv4Packet},
         ipv6::MutableIpv6Packet,
-        util, Packet,
+        util,
     },
+    util::MacAddr,
 };
 
 use std::{
@@ -223,4 +226,74 @@ fn create_packet_icmp_trace(
 
     let checksum = util::checksum(echo_packet.packet(), 0);
     echo_packet.set_checksum(checksum);
+}
+
+/*
+    +--------------------------------------------------------+
+    /                 ARP Packet Header                      /
+    +-------------------------+------------------------------+
+    / Hardware Type (HTYPE)   / 2 bytes (0x0001 for Ethernet)/
+    +-------------------------+------------------------------+
+    / Protocol Type (PTYPE)   / 2 bytes (0x0800 for IPv4)    /
+    +-------------------------+------------------------------+
+    / Hardware Size (HLEN)    / 1 byte (6 for MAC)           /
+    +-------------------------+------------------------------+
+    / Protocol Size (PLEN)    / 1 byte (4 for IPv4)          /
+    +-------------------------+------------------------------+
+    / Operation (Opcode)      / 2 bytes                      /
+    +-------------------------+------------------------------+
+    / Sender MAC Address      / 6 bytes                      /
+    +-------------------------+------------------------------+
+    / Sender IP Address       / 4 bytes                      /
+    +-------------------------+------------------------------+
+    / Target MAC Address      / 6 bytes                      /
+    +-------------------------+------------------------------+
+    / Target IP Address       / 4 bytes                      /
+    +--------------------------------------------------------+
+*/
+
+pub fn handle_packet_arp(
+    source_ip: Ipv4Addr,
+    source_mac: MacAddr,
+    target_ip: Ipv4Addr,
+) -> Result<Vec<u8>, std::io::Error> {
+    let ethernet_header_size = MutableEthernetPacket::minimum_packet_size();
+    let arp_packet_size = MutableArpPacket::minimum_packet_size();
+    let total_packet_size = ethernet_header_size + arp_packet_size;
+
+    let mut buffer = vec![0u8; total_packet_size];
+
+    let mut ether_packet = MutableEthernetPacket::new(&mut buffer[..ethernet_header_size])
+        .ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Error al crear el paquete Ethernet",
+            )
+        })?;
+
+    ether_packet.set_destination(MacAddr::broadcast());
+    ether_packet.set_source(source_mac);
+    ether_packet.set_ethertype(EtherTypes::Arp);
+
+    let mut arp_packet =
+        MutableArpPacket::new(&mut buffer[ethernet_header_size..]).ok_or_else(|| {
+            std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "Error al crear el paquete ARP en el payload",
+            )
+        })?;
+
+    arp_packet.set_hardware_type(ArpHardwareTypes::Ethernet);
+    arp_packet.set_protocol_type(EtherTypes::Ipv4);
+    arp_packet.set_hw_addr_len(6);
+    arp_packet.set_proto_addr_len(4);
+    arp_packet.set_operation(ArpOperations::Request);
+
+    arp_packet.set_sender_hw_addr(source_mac);
+    arp_packet.set_sender_proto_addr(source_ip);
+
+    arp_packet.set_target_hw_addr(MacAddr::zero());
+    arp_packet.set_target_proto_addr(target_ip);
+
+    Ok(buffer)
 }

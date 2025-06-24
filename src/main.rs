@@ -1,11 +1,17 @@
-use std::u32;
+use std::net::Ipv4Addr;
 
 use capture::{
     cap_packet::cap,
     interfaces::{self},
 };
 use cli::root::cmd;
+use pnet::{
+    datalink::{self, NetworkInterface},
+    util::MacAddr,
+};
 use route::{ping::*, resolve_host, tracerouter::trace};
+
+use crate::route::rarping::rarping;
 
 mod capture;
 mod cli;
@@ -19,18 +25,13 @@ async fn main() {
     match matches.subcommand() {
         // Command cap with subcommand --interface | --filter
         Some(("cap", cap_matches)) => {
-
             let interface = cap_matches
                 .get_one::<String>("interface")
                 .expect("Interface required");
 
-            let filter = cap_matches
-                .get_one::<String>("filter").cloned();
+            let filter = cap_matches.get_one::<String>("filter").cloned();
 
             cap(interface, filter);
-
-
-
         }
 
         // Command interface with two subcommand --list | --filter
@@ -70,9 +71,7 @@ async fn main() {
                 .parse::<u64>()
                 .unwrap_or(1);
 
-            let count = ping_matches
-                .get_one::<i32>("count").copied();
-               
+            let count = ping_matches.get_one::<i32>("count").copied();
 
             let ping_task = tokio::spawn(async move {
                 if let Err(e) = ping(destination.as_str(), ttl, min_send, count).await {
@@ -100,7 +99,7 @@ async fn main() {
                 eprintln!("Tracing task failed: {:?}", e);
             }
         }
-        // Command resolve 
+        // Command resolve
         Some(("resolve", resolve_matches)) => {
             let host = resolve_matches.get_one::<String>("host").unwrap().clone();
             let resolve = resolve_host::resolve_host(&host).await;
@@ -110,6 +109,25 @@ async fn main() {
             } else if let Err(e) = resolve {
                 eprintln!("Resolve host failed: {:?}", e);
             }
+        }
+        Some(("rarping", arp_matches)) => {
+            let interface_name = arp_matches.get_one::<String>("interface").unwrap();
+            let source_ip_str = arp_matches.get_one::<String>("ip").unwrap();
+            let source_mac_str = arp_matches.get_one::<String>("mac").unwrap();
+            let target_ip_str = arp_matches.get_one::<String>("target").unwrap();
+
+            let source_ip: Ipv4Addr = source_ip_str.parse().expect("Invalid source IP address");
+            let source_mac: MacAddr = source_mac_str.parse().expect("Invalid source MAC address");
+            let target_ip: Ipv4Addr = target_ip_str.parse().expect("Invalid target IP address");
+            let interfaces = datalink::interfaces();
+
+            let interface = interfaces
+                .into_iter()
+                .filter(|i: &NetworkInterface| i.name == *interface_name)
+                .next()
+                .unwrap();
+
+            rarping(interface, source_ip, source_mac, target_ip);
         }
         _ => {
             println!("No commands found");

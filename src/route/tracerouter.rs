@@ -1,6 +1,6 @@
 use pnet::packet::icmp::IcmpPacket;
-use pnet::packet::{icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet, Packet};
-use pnet::transport::{icmp_packet_iter, transport_channel, TransportChannelType};
+use pnet::packet::{Packet, icmp::IcmpTypes, ip::IpNextHeaderProtocols, ipv4::Ipv4Packet};
+use pnet::transport::{TransportChannelType, icmp_packet_iter, transport_channel};
 use std::time::{Duration, Instant};
 
 use super::create_packet::*;

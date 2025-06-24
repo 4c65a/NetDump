@@ -1,6 +1,11 @@
-use pnet::{datalink::EtherType, packet::{
-    ethernet::{EtherTypes, EthernetPacket}, vlan::VlanPacket, Packet
-}};
+use pnet::{
+    datalink::EtherType,
+    packet::{
+        Packet,
+        ethernet::{EtherTypes, EthernetPacket},
+        vlan::VlanPacket,
+    },
+};
 use termion::color;
 
 fn print_info(tpid: &EtherType, vlan_id: &u16, dei: &u8) {
@@ -32,4 +37,3 @@ pub fn vlan_handler(ether: &EthernetPacket) {
         }
     }
 }
-

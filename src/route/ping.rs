@@ -1,20 +1,23 @@
 use pnet::{
     self,
     packet::{
+        Packet,
         icmp::{IcmpPacket, IcmpTypes},
         icmpv6::{Icmpv6Packet, Icmpv6Types},
         ip::IpNextHeaderProtocols,
         ipv4::{self, Ipv4Packet},
         ipv6::{self},
-        Packet,
     },
-    transport::{icmp_packet_iter, icmpv6_packet_iter, transport_channel, TransportChannelType},
+    transport::{TransportChannelType, icmp_packet_iter, icmpv6_packet_iter, transport_channel},
 };
 
 use super::create_packet::*;
 use super::resolve_host::*;
 use std::{
-   io,net::{IpAddr, Ipv6Addr}, thread, time::{Duration, Instant}
+    io,
+    net::{IpAddr, Ipv6Addr},
+    thread,
+    time::{Duration, Instant},
 };
 use termion::color;
 
@@ -23,7 +26,7 @@ pub async fn ping(
     ttl: u8,
     min_send: u64,
     count: Option<i32>,
-) -> Result<(),io::Error> {
+) -> Result<(), io::Error> {
     let ip: IpAddr = hostname.parse().expect("Error: Ip don't working");
     match ip {
         IpAddr::V4(ipv4) => {

@@ -16,7 +16,7 @@ pub async fn resolve_host(hostname: &str) -> Result<Ipv4Addr, io::Error> {
                 return Err(Error::new(
                     io::ErrorKind::Other,
                     "Resolved to an IPv6 address which is not supported",
-                ))
+                ));
             }
         }
     }
