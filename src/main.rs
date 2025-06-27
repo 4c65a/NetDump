@@ -1,19 +1,15 @@
+mod cli;
+mod network;
+
 use std::net::Ipv4Addr;
 
-use capture::{
+use cli::root::cmd;
+use network::capture::{
     cap_packet::cap,
     interfaces::{self},
 };
-use cli::root::cmd;
+use network::route::{ping::*, rarping::rarping, resolve_host, tracerouter::trace};
 use pnet::util::MacAddr;
-use route::{ping::*, resolve_host, tracerouter::trace};
-
-use crate::route::rarping::rarping;
-
-mod capture;
-mod cli;
-mod protocols;
-mod route;
 
 #[tokio::main]
 async fn main() {
