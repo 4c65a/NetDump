@@ -118,6 +118,15 @@ NetDump is a command-line tool designed to facilitate network analysis and troub
   sudo netdump resolve -d google.com
 
   ```
+## `Rarping` Command
+
+* **Send an ARP request to a target IP to retrieve its MAC address**:
+
+  ```bash
+
+  sudo netdump rarping -i eth0 -s 192.168.0.1 -m 00:00:00:00:00:00 -t 10.0.0.0
+
+  ```
 
 # BPF Filter Cheat Sheet for Packet Capture
 

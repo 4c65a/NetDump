@@ -193,7 +193,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                 )
 
                 .after_help(
-                    "Example usage:\n  netdump rarping -i eth0 -s 192.168.1.10 -m 00:00:00:00:00:00 -t 192.168.1.1"
+                    "Example usage:\n  netdump rarping -i eth0 -s 192.168.1.10 -m 00:00:00:00:00:00 -t  10.0.0.0"
                 ),
 
             )
