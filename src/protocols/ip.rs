@@ -12,7 +12,7 @@ use termion::color;
 fn print_info(protocols: &str, source: &Ipv4Addr, destination: &Ipv4Addr, ttl: &u8, version: &u8) {
     println!(
         "{}Protocol: {:<6} | Source: {:>15} | Destination: {:>15} | TTL: {:>3} | Version: {:>2}{}",
-        color::Fg(color::Green),
+        color::Fg(color::Magenta),
         protocols,
         source,
         destination,
@@ -31,7 +31,7 @@ fn print_info_ipv6(
 ) {
     println!(
         "{}Protocol: {:<6} | Source: {:>15} | Destination: {:>15} | TTL: {:>3} | Version: {:>2}{}",
-        color::Fg(color::Green),
+        color::Fg(color::LightMagenta),
         protocols,
         source,
         destination,

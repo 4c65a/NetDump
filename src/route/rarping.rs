@@ -1,6 +1,8 @@
+use core::str;
 use std::net::Ipv4Addr;
 use std::time::{Duration, Instant};
 
+use pnet::datalink;
 use pnet::packet::arp::ArpOperations;
 use pnet::{
     datalink::{Channel, NetworkInterface, channel},
@@ -11,17 +13,19 @@ use pnet::{
     },
     util::MacAddr,
 };
+use termion::color;
 
 use crate::route::create_packet::handle_packet_arp;
 
 #[allow(dead_code)]
-pub fn rarping(
-    interface: NetworkInterface,
-    source_ip: Ipv4Addr,
-    source_mac: MacAddr,
-    target_ip: Ipv4Addr,
-) {
-    let (mut tx, mut rx) = match channel(&interface, Default::default()) {
+pub fn rarping(interface: &str, source_ip: Ipv4Addr, source_mac: MacAddr, target_ip: Ipv4Addr) {
+    let interfaces = datalink::interfaces();
+
+    let inter = interfaces
+        .into_iter()
+        .find(|i: &NetworkInterface| i.name == *interface);
+
+    let (mut tx, mut rx) = match channel(&inter.clone().unwrap(), Default::default()) {
         Ok(Channel::Ethernet(tx, rx)) => (tx, rx),
         Ok(_) => panic!("Unsupported channel type"),
         Err(e) => panic!("Failed to open channel: {:?}", e),
@@ -30,11 +34,15 @@ pub fn rarping(
     let packet =
         handle_packet_arp(source_ip, source_mac, target_ip).expect("Failed to build ARP packet");
 
-    match tx.send_to(&packet, Some(interface.clone())) {
+    match tx.send_to(&packet, Some(inter.expect(""))) {
         Some(Ok(_)) => {
             println!(
-                "ARP packet sent successfully: {:?} from {:?} {:?}",
-                target_ip, source_ip, interface
+                "{}ARP packet sent successfully: {:?} from {:?} on interface {}{}",
+                color::Fg(color::Green),
+                target_ip,
+                source_ip,
+                interface,
+                color::Fg(color::Reset),
             )
         }
         Some(Err(e)) => eprintln!("Failed to send ARP packet: {:?}", e),
@@ -59,14 +67,11 @@ pub fn rarping(
                                 && arp.get_sender_proto_addr() == target_ip
                             {
                                 println!(
-                                    "ARP Request from: source_ip: {:?} -> Source_mac: {:?}",
-                                    arp.get_target_proto_addr(),
-                                    arp.get_target_hw_addr(),
-                                );
-                                println!(
-                                    "ARP Reply from: Target_ip: {:?} -> Target_mac: {:?}",
+                                    "{}ARP Reply from: IP: {:?} -> MAC: {:?}{}",
+                                    color::Fg(color::Magenta),
                                     arp.get_sender_proto_addr(),
                                     arp.get_sender_hw_addr(),
+                                    color::Fg(color::Reset),
                                 );
                                 break;
                             }
@@ -75,10 +80,14 @@ pub fn rarping(
                 }
             }
             Err(e) => {
-                eprintln!("Error receiving packet: {:?}", e);
+                eprintln!(
+                    "{}Error receiving packet: {:?}{}",
+                    color::Fg(color::Red),
+                    e,
+                    color::Fg(color::Reset),
+                );
                 break;
             }
         }
     }
 }
-

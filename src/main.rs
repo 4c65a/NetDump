@@ -5,10 +5,7 @@ use capture::{
     interfaces::{self},
 };
 use cli::root::cmd;
-use pnet::{
-    datalink::{self, NetworkInterface},
-    util::MacAddr,
-};
+use pnet::util::MacAddr;
 use route::{ping::*, resolve_host, tracerouter::trace};
 
 use crate::route::rarping::rarping;
@@ -58,7 +55,6 @@ async fn main() {
                     .unwrap_or(&"127.0.0.1".to_string())
                     .clone()
             };
-
             let ttl = ping_matches
                 .get_one::<String>("ttl")
                 .unwrap_or(&"64".to_string())
@@ -111,7 +107,7 @@ async fn main() {
             }
         }
         Some(("rarping", arp_matches)) => {
-            let interface_name = arp_matches.get_one::<String>("interface").unwrap();
+            let interface = arp_matches.get_one::<String>("interface").unwrap();
             let source_ip_str = arp_matches.get_one::<String>("ip").unwrap();
             let source_mac_str = arp_matches.get_one::<String>("mac").unwrap();
             let target_ip_str = arp_matches.get_one::<String>("target").unwrap();
@@ -119,13 +115,6 @@ async fn main() {
             let source_ip: Ipv4Addr = source_ip_str.parse().expect("Invalid source IP address");
             let source_mac: MacAddr = source_mac_str.parse().expect("Invalid source MAC address");
             let target_ip: Ipv4Addr = target_ip_str.parse().expect("Invalid target IP address");
-            let interfaces = datalink::interfaces();
-
-            let interface = interfaces
-                .into_iter()
-                .filter(|i: &NetworkInterface| i.name == *interface_name)
-                .next()
-                .unwrap();
 
             rarping(interface, source_ip, source_mac, target_ip);
         }

@@ -105,7 +105,8 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("COUNT <number>")
                         .long("count")
-                        .value_parser(value_parser!(u32).range(1..))                                .action(ArgAction::Set)
+                        .value_parser(value_parser!(u32).range(1..))
+                        .action(ArgAction::Set)
                         .help("Stop after <count> replies"),
                 )
                 .arg(
@@ -164,7 +165,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("interface")
                         .value_name("INTERFACE")
                         .help("The network interface to use (e.g., eth0)")
-                        .required(true),
+                        .required(false),
                 )
                 .arg(
                     Arg::new("ip")
@@ -172,27 +173,27 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .long("ip")
                         .value_name("IP_ADDR")
                         .help("The source IP address (e.g., 192.168.1.10)")
-                        .required(true),
+                        .required(false),
                 )
                 .arg(
                     Arg::new("mac")
                         .short('m')
                         .long("mac")
                         .value_name("MAC_ADDR")
-                        .help("The source MAC address (e.g., 00:11:22:33:44:55)")
-                        .required(true),
+                        .help("The source MAC address (e.g., 00:00:00:00:00:00)")
+                        .required(false),
                 )
                 .arg(
                     Arg::new("target")
                         .short('t')
                         .long("target-ip")
                         .value_name("IP_ADDR")
-                        .help("The target IP address (e.g., 192.168.1.1)")
-                        .required(true),
+                        .help("The target IP address (e.g., 192.168.1.10)")
+                        .required(false),
                 )
 
                 .after_help(
-                    "Example usage:\n  netdump rarping -i eth0 -s 192.168.1.10 -m 00:11:22:33:44:55 -t 192.168.1.1"
+                    "Example usage:\n  netdump rarping -i eth0 -s 192.168.1.10 -m 00:00:00:00:00:00 -t 192.168.1.1"
                 ),
 
             )
