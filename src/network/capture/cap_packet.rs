@@ -1,4 +1,4 @@
-use crate::protocols::{arp::arp_handler, ip::ip_handler, vlan::vlan_handler};
+use crate::network::protocols::{arp::arp_handler, ip::ip_handler, vlan::vlan_handler};
 use core::panic;
 use pcap::{Capture, Device};
 use pnet::packet::ethernet::{EtherTypes, EthernetPacket};
