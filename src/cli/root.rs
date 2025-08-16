@@ -1,4 +1,4 @@
-use clap::{self, error::Result, Arg, ArgAction, ArgMatches, Command, Error};
+use clap::{self, Arg, ArgAction, ArgMatches, Command, Error, error::Result, value_parser};
 
 pub fn cmd() -> Result<ArgMatches, Error> {
     let matches = Command::new("netdump")
@@ -37,7 +37,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                     "Example usage: netdump cap -i eth0 -f 'tcp or udp'"
                 ),
         )
-        
+
         .subcommand(
             Command::new("interface")
                 .about("Get a list of available network interfaces.")
@@ -62,7 +62,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                     "Example usage: netdump interface -l\nExample with filter: netdump interface -t eth0"
                 ),
         )
-        
+
         .subcommand(
             Command::new("ping")
                 .about("Ping sends an Internet Control Message Protocol (ICMP).")
@@ -105,6 +105,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(false)
                         .value_name("COUNT <number>")
                         .long("count")
+                        .value_parser(value_parser!(u32).range(1..))
                         .action(ArgAction::Set)
                         .help("Stop after <count> replies"),
                 )
@@ -117,11 +118,12 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .action(ArgAction::Set)
                         .help("Send ICMPv6 packet to the specified IPv6 address (Note: IPv6 functionality is currently disabled and will be enabled in future versions)")
                 )
+                .hide(true)
                 .after_help(
                     "Example usage: netdump ping -d 8.8.8.8 -t 64\nExample with IPv6 (currently disabled): netdump ping -d 2001:db8::1 --ipv6"
                 ),
         )
-        
+
         .subcommand(
             Command::new("tracerouter")
                 .about("Performs a traceroute to the given IP address.")
@@ -138,7 +140,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                     "Example usage: netdump tracerouter -r 8.8.8.8"
                ),
         )
-        
+
         .subcommand(
             Command::new("resolve")
                 .about("Resolve the IP of a host")
@@ -154,6 +156,49 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                     "Example usage: netdump resolve -d example.com"
                 ),
         )
+
+        .subcommand(
+                  Command::new("rarping")
+                .about("Send an ARP request to a target IP to retrieve its MAC address.")
+                .arg(
+                    Arg::new("interface")
+                        .short('i')
+                        .long("interface")
+                        .value_name("INTERFACE")
+                        .help("The network interface to use (e.g., eth0)")
+                        .required(false),
+                )
+                .arg(
+                    Arg::new("ip")
+                        .short('s')
+                        .long("ip")
+                        .value_name("IP_ADDR")
+                        .help("The source IP address (e.g., 192.168.1.10)")
+                        .required(false),
+                )
+                .arg(
+                    Arg::new("mac")
+                        .short('m')
+                        .long("mac")
+                        .value_name("MAC_ADDR")
+                        .help("The source MAC address (e.g., 00:00:00:00:00:00)")
+                        .required(false),
+                )
+                .arg(
+                    Arg::new("target")
+                        .short('t')
+                        .long("target-ip")
+                        .value_name("IP_ADDR")
+                        .help("The target IP address (e.g., 192.168.1.10)")
+                        .required(false),
+                )
+
+                .after_help(
+                    "Example usage:\n  netdump rarping -i eth0 -s 192.168.1.10 -m 00:00:00:00:00:00 -t  10.0.0.0"
+                ),
+
+            )
+
         .get_matches();
     Ok(matches)
 }
