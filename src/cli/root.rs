@@ -118,6 +118,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .action(ArgAction::Set)
                         .help("Send ICMPv6 packet to the specified IPv6 address (Note: IPv6 functionality is currently disabled and will be enabled in future versions)")
                 )
+                .hide(true)
                 .after_help(
                     "Example usage: netdump ping -d 8.8.8.8 -t 64\nExample with IPv6 (currently disabled): netdump ping -d 2001:db8::1 --ipv6"
                 ),
@@ -152,7 +153,7 @@ pub fn cmd() -> Result<ArgMatches, Error> {
                         .required(true)
                 )
                 .after_help(
-                    "Erample usage: netdump resolve -d example.com"
+                    "Example usage: netdump resolve -d example.com"
                 ),
         )
 
